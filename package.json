@@ -1,0 +1,89 @@
+{
+  "name": "@vue-spark/router-plugins",
+  "type": "module",
+  "version": "0.0.0",
+  "description": "A lightweight plugin collection for Vue Router 4 — extend routing capabilities with minimal overhead.",
+  "author": "leihaohao <https://github.com/l246804>",
+  "license": "MIT",
+  "homepage": "https://github.com/vue-spark/router-plugins/wiki",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vue-spark/router-plugins"
+  },
+  "bugs": {
+    "url": "https://github.com/vue-spark/router-plugins/issues"
+  },
+  "keywords": [
+    "vue",
+    "vue-router",
+    "navigate",
+    "direction",
+    "history",
+    "state"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./plugins/*": {
+      "types": "./dist/plugins/*.d.ts",
+      "import": "./dist/plugins/*.js"
+    },
+    "./*": "./*"
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "CHANGELOG.md",
+    "README.md",
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsdown -w",
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "play:dev": "pnpm run dev & pnpm -C play run dev",
+    "play:build": "pnpm run build && pnpm -C play run build",
+    "play:preview": "pnpm run play:build && pnpm -C play run preview",
+    "release": "release-it",
+    "taze": "taze -iI major",
+    "lint:fix": "eslint . --fix"
+  },
+  "peerDependencies": {
+    "vue": "^3",
+    "vue-router": "^4"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.13.2",
+    "@release-it/conventional-changelog": "^10.0.1",
+    "@tsconfig/node22": "^22.0.2",
+    "@types/node": "^22.15.21",
+    "@vitest/coverage-v8": "3.2.1",
+    "@vue/tsconfig": "^0.7.0",
+    "eslint": "^9.27.0",
+    "eslint-plugin-format": "^1.0.1",
+    "happy-dom": "^17.6.3",
+    "lint-staged": "^16.0.0",
+    "npm-run-all2": "^8.0.4",
+    "prettier": "^3.5.3",
+    "release-it": "^19.0.2",
+    "simple-git-hooks": "^2.13.0",
+    "tsdown": "^0.12.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.1",
+    "vue": "^3.5.14",
+    "vue-router": "^4.5.1"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  }
+}

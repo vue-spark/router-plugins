@@ -1,0 +1,6 @@
+packages:
+  - play
+
+onlyBuiltDependencies:
+  - simple-git-hooks
+  - unrs-resolver
