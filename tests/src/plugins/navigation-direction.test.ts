@@ -86,4 +86,23 @@ describe.concurrent('navigationDirectionPlugin', () => {
     expect(listener1).toHaveBeenCalled()
     expect(listener2).toHaveBeenCalled()
   })
+
+  it('should detect forward navigation via setNextDirection()', async () => {
+    const router = await initRouter()
+    const listener = vi.fn()
+    router.navigationDirection.listen(listener)
+
+    await router.push('/home')
+
+    router.navigationDirection.setNextDirection(NavigationDirection.forward)
+
+    await routerBackAsync(router)
+
+    expect(router.navigationDirection.currentDirection.value).toBe(NavigationDirection.forward)
+    expect(listener).toHaveBeenCalledWith(
+      NavigationDirection.forward,
+      expect.any(Object),
+      expect.any(Object),
+    )
+  })
 })
