@@ -26,7 +26,6 @@ describe('scrollerPlugin', () => {
   it('should expose scroller object with reactive properties', async () => {
     const router = await initRouter()
     expect(router.scroller).toBeDefined()
-    expect(router.scroller.isAuto).toBeDefined()
     expect(router.scroller.positionsMap).toBeInstanceOf(Map)
   })
 

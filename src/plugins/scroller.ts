@@ -1,8 +1,9 @@
-import type { ShallowRef } from 'vue'
+import type { Reactive } from 'vue'
 import type * as VueRouter from 'vue-router'
 import type { RouterPlugin } from '../plugin'
 import type { Awaitable, SetRequired } from '../types'
-import { nextTick, shallowReactive, shallowRef } from 'vue'
+import type { INavigationDirection } from './navigation-direction'
+import { nextTick, shallowReactive } from 'vue'
 import { onRouterUninstall } from '../hooks/on-router-uninstall'
 import { definePlugin } from '../plugin'
 import { isFunction } from '../utils'
@@ -27,7 +28,6 @@ export interface ScrollHandlerContext {
   from: VueRouter.RouteLocationNormalized
   element: ScrollableElement
   selector: string
-  direction: NavigationDirection
   savedPosition: ScrollPositionCoordinates | undefined
 }
 
@@ -36,26 +36,34 @@ export interface ScrollHandler {
 }
 
 export interface Scroller {
-  positionsMap: Map<string, ScrollPositionCoordinatesGroup>
-  isAuto: ShallowRef<boolean>
+  /**
+   * 滚动位置记录
+   */
+  positionsMap: Reactive<Map<string, ScrollPositionCoordinatesGroup>>
+  /**
+   * 手动触发当前路由的滚动位置还原，适用于 `Transition` 组件动画结束后进行调用
+   */
   trigger: () => void
 }
 
 export interface ScrollerOptions {
   /**
-   * Auto collect scroll position
-   * @default true
-   */
-  autoCollect?: boolean
-  /**
-   * Scroll selectors
+   * 滚动元素选择器，支持特殊选择器 `window`
    * @default
    * ```ts
    * { window: true, body: true }
    * ```
    */
   selectors?: Record<string, boolean | ScrollHandler>
+  /**
+   * 滚动行为
+   */
   behavior?: ScrollBehavior
+  /**
+   * 仅当导航后退时还原滚动位置，适合移动端页面
+   *
+   * **注意：该功能依赖于 `NavigationDirectionPlugin`，若没有安装则无效！**
+   */
   scrollOnlyBackward?: boolean
 }
 
@@ -105,8 +113,10 @@ async function applyPositions(
   options: SetRequired<ScrollerOptions, 'selectors'>,
   {
     positions,
+    direction,
     ...ctx
-  }: Pick<ScrollHandlerContext, 'to' | 'from' | 'direction'> & {
+  }: Pick<ScrollHandlerContext, 'to' | 'from'> & {
+    direction: NavigationDirection | undefined
     positions: ScrollPositionCoordinatesGroup | undefined
   },
 ): Promise<void> {
@@ -125,12 +135,19 @@ async function applyPositions(
         pos = result
       }
     }
-    else if (handler === true) {
-      if (options.scrollOnlyBackward && ctx.direction !== NavigationDirection.backward) {
-        pos = undefined
-      }
+    // 开启 scrollOnlyBackward 时，导航不是 NavigationDirection.backward 时需要清除位置记录
+    else if (
+      handler &&
+      direction &&
+      options.scrollOnlyBackward &&
+      direction !== NavigationDirection.backward
+    ) {
+      pos = undefined
     }
 
+    if (!handler) return
+
+    // pos 没有时滚动行为需要设为 instant
     const behavior = pos ? options.behavior : 'instant'
     pos ||= { top: 0, left: 0 }
     element.scrollTo({ ...pos, behavior })
@@ -147,30 +164,25 @@ const ScrollerPlugin: RouterPlugin<[ScrollerOptions?]> = /* @__PURE__ */ defineP
 
     router.options.scrollBehavior = () => {}
 
-    const { autoCollect = true, selectors = { window: true, body: true } } = userOptions
-    const options = { ...userOptions, autoCollect, selectors }
+    const { selectors = { window: true, body: true } } = userOptions
+    const options = { ...userOptions, selectors }
     const positionsMap = shallowReactive(new Map<string, ScrollPositionCoordinatesGroup>())
-    const isAuto = shallowRef(autoCollect)
 
-    const routerHistory = router.options.history
-    const removeRouterGuard = router.beforeResolve((to, from) => {
-      if (!isAuto.value) return
-
-      // `beforeResolve` is also called when going back in history, we ignores it
-      if (routerHistory.state.current === to.fullPath) return
-
+    const removeRouterResolveGuard = router.beforeResolve((_, from) => {
       positionsMap.set(from.fullPath, capturePositions(options))
     })
 
-    const removeDirectionListener = router.navigationDirection.listen((direction, to, from) => {
-      if (!isAuto.value) return
-
-      const positions = positionsMap.get(to.fullPath)
-      nextTick(() => applyPositions(options, { to, from, direction, positions }))
+    const removeRouterAfterGuard = router.afterEach((to, from) => {
+      // 需要保证视图挂载完成后才能还原滚动位置
+      nextTick(() => {
+        const positions = positionsMap.get(to.fullPath)
+        const navigationDirection: INavigationDirection | undefined = router.navigationDirection
+        const direction = navigationDirection && navigationDirection.currentDirection.value
+        applyPositions(options, { to, from, direction, positions })
+      })
     })
 
     router.scroller = {
-      isAuto,
       positionsMap,
       trigger() {
         const route = router.currentRoute.value
@@ -188,8 +200,8 @@ const ScrollerPlugin: RouterPlugin<[ScrollerOptions?]> = /* @__PURE__ */ defineP
 
     onRouterUninstall(router, () => {
       positionsMap.clear()
-      removeRouterGuard()
-      removeDirectionListener()
+      removeRouterResolveGuard()
+      removeRouterAfterGuard()
     })
   },
 )
