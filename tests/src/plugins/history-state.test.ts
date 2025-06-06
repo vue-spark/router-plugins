@@ -1,6 +1,6 @@
+import HistoryStatePlugin from '@src/plugins/history-state'
 import { describe, expect, it } from 'vitest'
-import { initRouterFactory, mockRouterUninstall } from '../../__tests__/utils'
-import HistoryStatePlugin from '../history-state'
+import { initRouterFactory, mockRouterUninstall } from '../utils'
 
 describe.concurrent('historyStatePlugin', () => {
   const initRouter = initRouterFactory({ plugins: [HistoryStatePlugin] })

@@ -194,7 +194,7 @@ const ScrollerPlugin: RouterPlugin<[ScrollerOptions?]> = /* @__PURE__ */ defineP
   },
 )
 
-export default ScrollerPlugin
+export { ScrollerPlugin as default, ScrollerPlugin }
 
 declare module 'vue-router' {
   interface Router {

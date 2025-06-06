@@ -1,5 +1,5 @@
+import type { FunctionRouterPlugin } from '@src/plugin'
 import type { Router, RouteRecordRaw } from 'vue-router'
-import type { FunctionRouterPlugin } from '../plugin'
 import { h, nextTick } from 'vue'
 import { createMemoryHistory, createRouter, START_LOCATION } from 'vue-router'
 
@@ -42,12 +42,12 @@ export function initRouterFactory<Options = never>({
   }
 }
 
-export async function mockRouterUninstall(router: Router) {
+export async function mockRouterUninstall(router: Router): Promise<void> {
   router.currentRoute.value = START_LOCATION
   await nextTick()
 }
 
-export async function routerBackAsync(router: Router) {
+export async function routerBackAsync(router: Router): Promise<void> {
   const { promise, resolve } = Promise.withResolvers<void>()
   const removeRouterGuard = router.afterEach(() => {
     resolve()

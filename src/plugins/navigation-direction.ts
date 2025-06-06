@@ -103,7 +103,7 @@ const NavigationDirectionPlugin: RouterPlugin<[NavigationDirectionOptions?]> =
     })
   })
 
-export default NavigationDirectionPlugin
+export { NavigationDirectionPlugin as default, NavigationDirectionPlugin }
 
 declare module 'vue-router' {
   interface Router {

@@ -1,6 +1,6 @@
+import IsNavigatingPlugin from '@src/plugins/is-navigating'
 import { describe, expect, it } from 'vitest'
-import { initRouterFactory } from '../../__tests__/utils'
-import IsNavigatingPlugin from '../is-navigating'
+import { initRouterFactory } from '../utils'
 
 describe.concurrent('isNavigatingPlugin', () => {
   const initRouter = initRouterFactory({ plugins: [IsNavigatingPlugin] })

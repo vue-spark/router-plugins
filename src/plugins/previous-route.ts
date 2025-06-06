@@ -32,7 +32,7 @@ const PreviousRoutePlugin: RouterPlugin = /* @__PURE__ */ definePlugin((router) 
   })
 })
 
-export default PreviousRoutePlugin
+export { PreviousRoutePlugin as default, PreviousRoutePlugin }
 
 declare module 'vue-router' {
   interface Router {

@@ -19,7 +19,7 @@ const IsNavigatingPlugin: RouterPlugin = /* @__PURE__ */ definePlugin((router) =
   })
 })
 
-export default IsNavigatingPlugin
+export { IsNavigatingPlugin as default, IsNavigatingPlugin }
 
 declare module 'vue-router' {
   interface Router {

@@ -1,6 +1,6 @@
+import { onRouterUninstall } from '@src/hooks/on-router-uninstall'
 import { describe, expect, it, vi } from 'vitest'
-import { initRouterFactory, mockRouterUninstall } from '../../__tests__/utils'
-import { onRouterUninstall } from '../on-router-uninstall'
+import { initRouterFactory, mockRouterUninstall } from '../utils'
 
 describe.concurrent('onRouterUninstall', () => {
   const initRouter = initRouterFactory()

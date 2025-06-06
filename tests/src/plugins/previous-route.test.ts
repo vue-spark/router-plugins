@@ -1,6 +1,6 @@
+import PreviousRoutePlugin from '@src/plugins/previous-route'
 import { describe, expect, it } from 'vitest'
-import { initRouterFactory } from '../../__tests__/utils'
-import PreviousRoutePlugin from '../previous-route'
+import { initRouterFactory } from '../utils'
 
 describe.concurrent('previousRoutePlugin', () => {
   const initRouter = initRouterFactory({ plugins: [PreviousRoutePlugin] })

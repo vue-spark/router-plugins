@@ -1,11 +1,9 @@
-/// <reference lib="DOM" />
-// @vitest-environment happy-dom
-import type { ScrollerOptions } from '../scroller'
+import type { ScrollerOptions } from '@src/plugins/scroller'
+import NavigationDirectionPlugin from '@src/plugins/navigation-direction'
+import ScrollerPlugin from '@src/plugins/scroller'
 import { describe, expect, it, vi } from 'vitest'
 import { h, nextTick } from 'vue'
-import { initRouterFactory, routerBackAsync } from '../../__tests__/utils'
-import NavigationDirectionPlugin from '../navigation-direction'
-import ScrollerPlugin from '../scroller'
+import { initRouterFactory, routerBackAsync } from '../utils'
 
 describe('scrollerPlugin', () => {
   const initRouter = initRouterFactory<ScrollerOptions>({

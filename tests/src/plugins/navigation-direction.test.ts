@@ -1,7 +1,7 @@
-import type { NavigationDirectionOptions } from '../navigation-direction'
+import type { NavigationDirectionOptions } from '@src/plugins/navigation-direction'
+import NavigationDirectionPlugin, { NavigationDirection } from '@src/plugins/navigation-direction'
 import { describe, expect, it, vi } from 'vitest'
-import { initRouterFactory, routerBackAsync } from '../../__tests__/utils'
-import NavigationDirectionPlugin, { NavigationDirection } from '../navigation-direction'
+import { initRouterFactory, routerBackAsync } from '../utils'
 
 describe.concurrent('navigationDirectionPlugin', () => {
   const initRouter = initRouterFactory<NavigationDirectionOptions>({

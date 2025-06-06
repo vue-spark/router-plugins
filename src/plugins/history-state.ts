@@ -157,7 +157,7 @@ const HistoryStatePlugin: RouterPlugin = /* @__PURE__ */ definePlugin((router) =
   })
 })
 
-export default HistoryStatePlugin
+export { HistoryStatePlugin as default, HistoryStatePlugin }
 
 declare module 'vue-router' {
   interface Router {

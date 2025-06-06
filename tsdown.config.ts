@@ -1,9 +1,10 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  entry: 'src/**/*.ts',
-  format: 'esm',
-  dts: true,
+  entry: ['src/index.ts', 'src/plugins/*.ts'],
+  dts: {
+    tsconfig: 'tsconfig.lib.json',
+  },
   platform: 'browser',
   unbundle: true,
 })
