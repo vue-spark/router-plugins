@@ -38,4 +38,4 @@ const RouterPlugins: RouterPlugin<[RouterPluginsOptions?]> = /* @__PURE__ */ def
   },
 )
 
-export default RouterPlugins
+export { RouterPlugins as default, RouterPlugins }
