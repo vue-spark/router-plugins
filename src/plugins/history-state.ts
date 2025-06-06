@@ -6,29 +6,61 @@ import { definePlugin } from '../plugin'
 import { assign, isString } from '../utils'
 
 export interface HistoryStateManager {
+  /**
+   * 等同于 `router.options.history.state`
+   */
   readonly raw: VueRouter.HistoryState
+  /**
+   * 状态所属的命名空间名称
+   */
   readonly namespace: string
 
+  /**
+   * 设置状态数据，会立即同步到 `router.options.history.state`，数据仅支持浅拷贝
+   */
   set: {
     <T extends {}>(state: Partial<T>): void
     <T = unknown>(key: string, value: T | undefined): T | undefined
   }
+
+  /***
+   * 仅设置内存里的状态数据，不会被更新到 `router.options.history.state`
+   */
   setMemory: HistoryStateManager['set']
 
+  /**
+   * 延迟设置状态数据，会等待 `router` 下次导航成功时再同步到 `router.options.history.state`，
+   * 可以在导航前多次调用，延迟设置的状态数据会放入缓冲区，无论下次导航成功或失败都会重置缓冲区
+   */
   setDeferred: HistoryStateManager['set']
+  /**
+   * 取消延迟设置的状态数据，直接重置缓冲区
+   */
   cancelDeferred: () => void
+  /**
+   * 立即同步缓冲区中的状态数据到 `router.options.history.state`
+   */
   applyDeferred: () => void
 
+  /**
+   * 获取状态数据
+   */
   get: {
     <T extends {}>(): Partial<T>
     <T = unknown>(key: string): T | undefined
   }
 
+  /**
+   * 获取状态数据并删除原始缓存
+   */
   take: {
     <T extends {}>(): Partial<T>
     <T = unknown>(key: string): T | undefined
   }
 
+  /**
+   * 销毁当前命名空间的状态数据
+   */
   destroy: () => void
 }
 
@@ -36,9 +68,9 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
   const routerHistory = router.options.history
   let historyState: {} = assign({}, routerHistory.state[namespace])
   let memoryState: {} = assign({}, historyState)
-  let deferredQueue: [keyOrState: any, value?: any][] = []
+  let deferredBuffer: [keyOrState: any, value?: any][] = []
 
-  // when historyState is changed, sync it to routerHistory.state
+  // 当 historyState 变更时需要同步到 routerHistory.state
   const syncHistoryState = (destroy?: boolean): void => {
     assign(routerHistory.state, { [namespace]: destroy ? undefined : historyState })
     routerHistory.replace(routerHistory.location, routerHistory.state)
@@ -52,7 +84,7 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
     const state = isString(keyOrState) ? { [keyOrState]: value } : keyOrState
     assign(memoryState, state)
 
-    // only sync to history state when not onlyMemory
+    // onlyMemory 为 true 时跳过 historyState 更新
     if (options.onlyMemory) return
 
     assign(historyState, state)
@@ -60,20 +92,23 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
   }
 
   const applyDeferred = (): void => {
-    if (!deferredQueue.length) return
+    if (!deferredBuffer.length) return
 
-    const queue = deferredQueue
-    deferredQueue = []
-    queue.forEach(([keyOrState, value]) => setState(keyOrState, value))
+    const buffer = deferredBuffer
+    deferredBuffer = []
+    buffer.forEach(([keyOrState, value]) => setState(keyOrState, value))
     syncHistoryState()
   }
 
-  // immediately sync the state
+  // 立即同步一次 historyState
   syncHistoryState()
 
-  // sync the state when navigation is done
+  // 导航成功时同步延迟设置的状态数据
   const removeRouterGuard = router.afterEach((_, __, failure) => {
     !failure && applyDeferred()
+
+    // 不论成功失败都重置缓冲区
+    deferredBuffer = []
   })
 
   return {
@@ -94,11 +129,11 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
     },
 
     setDeferred(keyOrState: any, value?: any) {
-      deferredQueue.push([keyOrState, value])
+      deferredBuffer.push([keyOrState, value])
     },
 
     cancelDeferred() {
-      deferredQueue = []
+      deferredBuffer = []
     },
 
     applyDeferred,
@@ -130,7 +165,7 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
     destroy(): void {
       historyState = {}
       memoryState = {}
-      deferredQueue = []
+      deferredBuffer = []
       syncHistoryState(true)
       removeRouterGuard()
     },
