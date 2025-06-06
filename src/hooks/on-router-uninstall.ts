@@ -14,6 +14,10 @@ export function onRouterUninstall(router: VueRouter.Router, handler: UninstallHa
       routers.delete(router)
     }
 
+    // vue-router 的 currentRoute.value 初始值是 START_LOCATION，
+    // 在初次导航成功时被变更，之后只会在 app 卸载时又会重置为 START_LOCATION，
+    // 所以这里通过 isReady() 成功时监听 currentRoute.value，
+    // 在值为 START_LOCATION 时认为卸载完成需要执行卸载处理
     router
       .isReady()
       .then(() => {
