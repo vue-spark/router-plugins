@@ -1,7 +1,7 @@
 {
   "name": "@vue-spark/router-plugins",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0-0",
   "description": "A lightweight plugin collection for Vue Router 4 — extend routing capabilities with minimal overhead.",
   "author": "leihaohao <https://github.com/l246804>",
   "license": "MIT",
