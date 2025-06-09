@@ -70,10 +70,16 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
   let memoryState: {} = assign({}, historyState)
   let deferredBuffer: [keyOrState: any, value?: any][] = []
 
+  const replaceHistoryState = (): void => {
+    // fix: 修复注册 NavigationDirectionPlugin 后手动调用 routerHistory.replace 会导致方向解析错误
+    const replace = routerHistory.originalReplace || routerHistory.replace
+    replace.call(routerHistory, routerHistory.location, routerHistory.state)
+  }
+
   // 当 historyState 变更时需要同步到 routerHistory.state
   const syncHistoryState = (destroy?: boolean): void => {
     assign(routerHistory.state, { [namespace]: destroy ? undefined : historyState })
-    routerHistory.replace(routerHistory.location, routerHistory.state)
+    replaceHistoryState()
   }
 
   const setState = (
