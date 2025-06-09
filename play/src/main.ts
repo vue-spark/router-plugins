@@ -6,7 +6,7 @@ import router from './router'
 import '@varlet/touch-emulator'
 import 'modern-normalize/modern-normalize.css'
 import '@varlet/ui/es/style'
-import './App.css'
+import './main.css'
 
 const app = createApp(App)
 

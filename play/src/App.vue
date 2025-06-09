@@ -54,37 +54,40 @@ router.navigationDirection.listen((direction, to, from) => {
 </template>
 
 <style scoped>
-.page-out-enter-active,
-.page-out-leave-active,
 .page-in-enter-active,
-.page-in-leave-active {
-  will-change: transform;
-  transition:
-    transform 0.3s ease-in-out,
-    opacity 0.31s;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
+.page-in-leave-active,
+.page-out-enter-active,
+.page-out-leave-active {
   position: absolute;
-  backface-visibility: hidden;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--color-body);
+  overflow: hidden;
+  will-change: transform;
+  transition: transform 0.3s linear;
+}
+
+.page-in-leave-from {
+  z-index: -1;
+}
+.page-in-enter-from {
+  z-index: 10;
+  transform: translateX(100%);
+}
+.page-in-enter-to {
+  z-index: 10;
 }
 
 .page-out-enter-from {
-  transform: translateX(-80%);
+  z-index: -1;
 }
-
-.page-out-leave-active {
+.page-out-leave-from {
+  z-index: 10;
+}
+.page-out-leave-to {
+  z-index: 10;
   transform: translateX(100%);
-  z-index: 2;
-}
-
-.page-in-enter-from {
-  transform: translateX(100%);
-}
-
-.page-in-leave-active {
-  opacity: 1;
-  transform: translateX(-80%);
 }
 </style>
