@@ -1,8 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
-import { PlusProComponentsResolver } from '@plus-pro-components/resolver'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import { VarletUIResolver } from 'unplugin-vue-components/resolvers'
 import vueComponents from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 
@@ -20,10 +19,7 @@ export default defineConfig({
     vueJsx(),
     vueComponents({
       dts: 'src/types/components.d.ts',
-      resolvers: [
-        ElementPlusResolver({ importStyle: false }),
-        PlusProComponentsResolver({ importStyle: false }),
-      ],
+      resolvers: [VarletUIResolver({ importStyle: false })],
     }),
   ],
   resolve: {

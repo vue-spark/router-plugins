@@ -10,16 +10,17 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.3.1",
-    "element-plus": "^2.9.11",
+    "@varlet/touch-emulator": "^3.10.8",
+    "@varlet/ui": "^3.10.8",
+    "@vue-spark/router-plugins": "workspace:*",
+    "highlight.js": "^11.11.1",
     "modern-normalize": "^3.0.1",
-    "plus-pro-components": "^0.1.23"
+    "nice-fns": "^2.1.1",
+    "vue-router-better-view": "^0.1.0"
   },
   "devDependencies": {
-    "@plus-pro-components/resolver": "^0.0.3",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vitejs/plugin-vue-jsx": "^4.2.0",
-    "@vue-spark/router-plugins": "workspace:*",
     "lightningcss": "^1.30.1",
     "unplugin-vue-components": "^28.7.0",
     "vite": "npm:rolldown-vite@^6.3.16",

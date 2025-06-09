@@ -21,10 +21,6 @@
     "history",
     "state"
   ],
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -35,6 +31,10 @@
       "import": "./dist/plugins/*.js"
     },
     "./*": "./*"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -1,0 +1,17 @@
+* {
+  scrollbar-width: none;
+}
+
+body {
+  transition: background-color 0.25s color 0.25s;
+  color: var(--color-test);
+  background-color: var(--color-body);
+  color-scheme: var(--color-scheme);
+}
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}

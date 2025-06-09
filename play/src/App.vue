@@ -1,99 +1,77 @@
 <script setup lang="ts">
-import { ElLoading } from 'element-plus'
-import { ref, watch } from 'vue'
+import type { ResolveViewKey } from 'vue-router-better-view'
+import { ref, shallowReactive } from 'vue'
 import { useRouter } from 'vue-router'
-import Logo from '@/assets/logo.svg'
 
 const router = useRouter()
-router.beforeEach(async () => {
-  // await sleep(1e3)
-})
-
-watch(router.isNavigating, (value) => {
-  value ? ElLoading.service({ text: 'Navigating...' }) : ElLoading.service().close()
-})
-
 const transitionName = ref<string>()
-router.navigationDirection.listen((direction) => {
+const keepAliveValues = shallowReactive(new Set<string>())
+
+const resolveViewKey: ResolveViewKey = (route) => {
+  return route.meta.title ? route.fullPath : null
+}
+
+router.navigationDirection.listen((direction, to, from) => {
   switch (direction) {
-    case 'forward':
+    case 'forward': {
       transitionName.value = 'page-in'
+      keepAliveValues.add(to.fullPath)
       break
-    case 'backward':
+    }
+    case 'backward': {
       transitionName.value = 'page-out'
+      keepAliveValues.delete(from.fullPath)
       break
-    default:
+    }
+    default: {
       transitionName.value = undefined
+      keepAliveValues.delete(from.fullPath)
+      keepAliveValues.add(to.fullPath)
+      break
+    }
   }
 })
-
-const isAnimating = ref(false)
 </script>
 
 <template>
-  <PlusLayout
-    class="layout"
-    :class="{ 'is-animating': isAnimating }"
-    :header-props="{
-      title: 'Router Plugins',
-      logo: Logo,
-      hasUserInfo: false,
-    }"
-    :has-breadcrumb="false"
-    :has-sidebar="false"
+  <BetterRouterView
+    v-slot="{ Component: viewComponent, route }"
+    :resolve-view-key
   >
-    <div class="view-container">
-      <RouterView v-slot="{ Component: viewComponent, route }">
-        <Transition
-          :name="transitionName"
-          :css="!!transitionName"
-          @before-enter="isAnimating = true"
-          @after-enter="isAnimating = false"
-        >
-          <KeepAlive>
-            <Component
-              :is="viewComponent"
-              :key="route.fullPath"
-            />
-          </KeepAlive>
-        </Transition>
-      </RouterView>
-    </div>
-  </PlusLayout>
+    <Transition
+      :name="transitionName"
+      :css="!!transitionName"
+      @after-enter="$router.scroller.trigger()"
+    >
+      <KeepAlive :include="[...keepAliveValues]">
+        <Component
+          :is="viewComponent"
+          :key="route.fullPath"
+        />
+      </KeepAlive>
+    </Transition>
+  </BetterRouterView>
 </template>
 
 <style scoped>
-.layout {
-  .view-container {
-    position: relative;
-  }
-
-  &.is-animating {
-    :deep(.plus-layout-content) {
-      .el-main {
-        overflow: hidden;
-      }
-    }
-  }
-}
-
 .page-out-enter-active,
 .page-out-leave-active,
 .page-in-enter-active,
 .page-in-leave-active {
   will-change: transform;
-  transition: transform 0.25s ease-out;
+  transition:
+    transform 0.3s ease-in-out,
+    opacity 0.31s;
   height: 100%;
   width: 100%;
   top: 0;
   left: 0;
   position: absolute;
   backface-visibility: hidden;
-  perspective: 1000;
 }
 
 .page-out-enter-from {
-  transform: translateX(-30%);
+  transform: translateX(-80%);
 }
 
 .page-out-leave-active {
@@ -106,6 +84,7 @@ const isAnimating = ref(false)
 }
 
 .page-in-leave-active {
-  transform: translateX(-30%);
+  opacity: 1;
+  transform: translateX(-80%);
 }
 </style>
