@@ -1,4 +1,4 @@
-import type { Reactive } from 'vue'
+import type { ShallowReactive } from 'vue'
 import type * as VueRouter from 'vue-router'
 import type { RouterPlugin } from '../plugin'
 import type { Awaitable, SetRequired } from '../types'
@@ -39,7 +39,7 @@ export interface Scroller {
   /**
    * 滚动位置记录
    */
-  positionsMap: Reactive<Map<string, ScrollPositionCoordinatesGroup>>
+  positionsMap: ShallowReactive<Map<string, ScrollPositionCoordinatesGroup>>
   /**
    * 手动触发当前路由的滚动位置还原，适用于 `Transition` 组件动画结束后进行调用
    */
