@@ -60,17 +60,30 @@ const NavigationDirectionPlugin: RouterPlugin<[NavigationDirectionOptions?]> =
     const currentDirection = shallowRef<NavigationDirection>()
     const listeners = new Set<NavigationDirectionCallback>()
 
-    // router.push 和 router.replace 最终会通过 routerHistory 暴露的 api 进行操作，
-    // 这里通过包装后可以感知是否为替换模式
-    let historyReplaced = false
     const { push: originalPush, replace: originalReplace } = routerHistory
+
+    // 保留未修改的 push 和 replace 方法，便于其他插件使用而不影响 historyReplaced 的判断
+    routerHistory.originalPush = originalPush
+    routerHistory.originalReplace = originalReplace
+
+    // router.push 和 router.replace 在浏览器模式下会更新 history.state.replaced 属性，
+    // 这里可以通过其感知是否为替换模式
+    let historyReplaced = false
     routerHistory.push = (...args) => {
-      historyReplaced = false
-      return originalPush.apply(routerHistory, args)
+      try {
+        return originalPush.apply(routerHistory, args)
+      }
+      finally {
+        historyReplaced = (routerHistory.state.replaced as boolean | null) ?? false
+      }
     }
     routerHistory.replace = (...args) => {
-      historyReplaced = true
-      return originalReplace.apply(routerHistory, args)
+      try {
+        return originalReplace.apply(routerHistory, args)
+      }
+      finally {
+        historyReplaced = (routerHistory.state.replaced as boolean | null) ?? true
+      }
     }
 
     // routerHistory.listen 可以监听浏览器的前进后退，提供的 information.delta 可以用于判断方向
@@ -137,5 +150,16 @@ export { NavigationDirectionPlugin as default, NavigationDirectionPlugin }
 declare module 'vue-router' {
   interface Router {
     navigationDirection: INavigationDirection
+  }
+
+  interface RouterHistory {
+    /**
+     * 未修改的 `push` 方法
+     */
+    originalPush: RouterHistory['push']
+    /**
+     * 未修改的 `replace` 方法
+     */
+    originalReplace: RouterHistory['replace']
   }
 }
