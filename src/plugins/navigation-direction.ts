@@ -21,7 +21,7 @@ export interface INavigationDirection {
   /**
    * 当前导航方向，即最后一次导航方向
    */
-  currentDirection: ShallowRef<NavigationDirection | undefined>
+  currentDirection: ShallowRef<NavigationDirection>
   /**
    * 设置下次导航方向，将会在下次导航成功时生效，导航失败时需要重新设置
    */
@@ -57,7 +57,7 @@ const NavigationDirectionPlugin: RouterPlugin<[NavigationDirectionOptions?]> =
   /* @__PURE__ */ definePlugin((router, options = {}) => {
     const { directionResolver = defaultDirectionResolver } = options
     const routerHistory = router.options.history
-    const currentDirection = shallowRef<NavigationDirection>()
+    const currentDirection = shallowRef<NavigationDirection>(NavigationDirection.unchanged)
     const listeners = new Set<NavigationDirectionCallback>()
 
     const { push: originalPush, replace: originalReplace } = routerHistory
@@ -136,7 +136,7 @@ const NavigationDirectionPlugin: RouterPlugin<[NavigationDirectionOptions?]> =
     }
 
     onRouterUninstall(router, () => {
-      currentDirection.value = undefined
+      currentDirection.value = NavigationDirection.unchanged
       listeners.clear()
       historyDelta = null
       nextDirection = null
