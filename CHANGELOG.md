@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0](https://github.com/vue-spark/router-plugins/compare/v0.1.0-1...v0.1.0) (2025-06-10)
+
+### Chores
+
+- **package.json:** 优化项目描述文案 ([dd3e0ef](https://github.com/vue-spark/router-plugins/commit/dd3e0ef0f04e1a95c836bf10f0922f5f83c7bfe2))
+- **play:** 优化 `NavigationDirectionPlugin` 方向动画示例 ([bc88f89](https://github.com/vue-spark/router-plugins/commit/bc88f89236dd2889a1e31a145538e365c5a26ed0))
+
 ## [0.1.0-1](https://github.com/vue-spark/router-plugins/compare/v0.1.0-0...v0.1.0-1) (2025-06-09)
 
 ### Features
