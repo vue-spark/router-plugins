@@ -63,7 +63,7 @@ app.use(ScrollerPlugin, {
 用于在使用 `<KeepAlive>` 缓存页面后，支持在浏览器导航（前进/后退）时传递和恢复状态数据。
 
 <details>
-<summary style="cursor: pointer; color: blue">使用示例</summary>
+<summary>使用示例</summary>
 
 ```html
 <!-- list.vue -->
@@ -208,7 +208,7 @@ interface Router {
 用于模拟移动端导航方向（前进/后退/刷新），辅助动画与缓存控制。
 
 <details>
-<summary style="cursor: pointer; color: blue">使用示例</summary>
+<summary>使用示例</summary>
 
 ```html
 <!-- App.vue -->
@@ -357,7 +357,7 @@ interface Router {
 自动保存并恢复滚动位置，适用于长页面或列表页。
 
 <details>
-<summary style="cursor: pointer; color: blue">使用示例</summary>
+<summary>使用示例</summary>
 
 ```ts
 // main.ts
@@ -444,7 +444,7 @@ interface Router {
 用于检测当前是否处于导航状态，适用于过渡动画或加载提示。
 
 <details>
-<summary style="cursor: pointer; color: blue">使用示例</summary>
+<summary>使用示例</summary>
 
 ```html
 <template>
@@ -469,7 +469,7 @@ interface Router {
 记录上一个访问的路由信息，适合需要根据来源做逻辑判断的场景。
 
 <details>
-<summary style="cursor: pointer; color: blue">使用示例</summary>
+<summary>使用示例</summary>
 
 ```ts
 const router = createRouter({...})

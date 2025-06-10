@@ -65,7 +65,7 @@ app.use(ScrollerPlugin, {
 Supports passing and restoring state data during browser navigation (forward/backward) after caching pages with `<KeepAlive>`.
 
 <details>
-<summary style="cursor: pointer; color: blue">Usage Example</summary>
+<summary>Usage Example</summary>
 
 ```html
 <!-- list.vue -->
@@ -212,7 +212,7 @@ interface Router {
 Simulates mobile navigation direction (forward/backward/refresh) for animation and cache control.
 
 <details>
-<summary style="cursor: pointer; color: blue">Usage Example</summary>
+<summary>Usage Example</summary>
 
 ```html
 <!-- App.vue -->
@@ -362,7 +362,7 @@ interface Router {
 Automatically saves and restores scroll position for long pages or list pages.
 
 <details>
-<summary style="cursor: pointer; color: blue">Usage Example</summary>
+<summary>Usage Example</summary>
 
 ```ts
 // main.ts
@@ -450,7 +450,7 @@ interface Router {
 Detects current navigation state for transition animations or loading indicators.
 
 <details>
-<summary style="cursor: pointer; color: blue">Usage Example</summary>
+<summary>Usage Example</summary>
 
 ```html
 <template>
@@ -475,7 +475,7 @@ interface Router {
 Records previous route information for source-based logic decisions.
 
 <details>
-<summary style="cursor: pointer; color: blue">Usage Example</summary>
+<summary>Usage Example</summary>
 
 ```ts
 const router = createRouter({...})
