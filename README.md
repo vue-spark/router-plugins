@@ -287,28 +287,28 @@ Simulates mobile navigation direction (forward/backward/refresh) for animation a
     background-color: #fff;
     overflow: hidden;
     will-change: transform;
-    transition: transform 0.3s linear;
+    transition:
+      transform 0.3s linear,
+      /* fix: 避免离场元素闪烁 */ opacity 0.31s;
   }
 
-  .page-in-leave-from {
-    z-index: -1;
+  .page-in-leave-to {
+    /* fix: 避免离场元素闪烁 */
+    opacity: 1;
   }
   .page-in-enter-from {
-    z-index: 10;
+    z-index: 2;
     transform: translateX(100%);
   }
   .page-in-enter-to {
-    z-index: 10;
+    z-index: 2;
   }
 
-  .page-out-enter-from {
-    z-index: -1;
-  }
   .page-out-leave-from {
-    z-index: 10;
+    z-index: 2;
   }
   .page-out-leave-to {
-    z-index: 10;
+    z-index: 2;
     transform: translateX(100%);
   }
 </style>
