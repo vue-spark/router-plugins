@@ -2,7 +2,7 @@
 
 轻量级 Vue Router 4 插件集合——以最小开销扩展路由能力。
 
-[English Document](https://github.com/vue-spark/router-plugins/blob/dev/README_zh-CN.md)
+[English Document](https://github.com/vue-spark/router-plugins/blob/dev/README.md)
 
 [在线示例](https://vue-spark.github.io/router-plugins/)
 
