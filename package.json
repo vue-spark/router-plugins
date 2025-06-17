@@ -5,7 +5,7 @@
   "description": "Lightweight Vue Router 4 plugin collection - extend routing capabilities with minimal overhead.",
   "author": "leihaohao <https://github.com/l246804>",
   "license": "MIT",
-  "homepage": "https://github.com/vue-spark/router-plugins/wiki",
+  "homepage": "https://github.com/vue-spark/router-plugins#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/vue-spark/router-plugins"
