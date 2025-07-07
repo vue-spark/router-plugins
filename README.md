@@ -2,6 +2,8 @@
 
 Lightweight Vue Router 4 plugin collection - extend routing capabilities with minimal overhead.
 
+> Starting from v1.0.0, the plugin is developed based on vue-router-plugin-system (the old plugin registration method is deprecated). See its documentation for details.
+
 [中文文档](./README.zh-CN.md)
 
 [Online example](https://vue-spark.github.io/router-plugins/)
@@ -12,49 +14,25 @@ Lightweight Vue Router 4 plugin collection - extend routing capabilities with mi
 npm i @vue-spark/router-plugins
 ```
 
-### Full Registration
+### Plugin Registration
 
 ```ts
-import RouterPlugins from '@vue-spark/router-plugins'
-import { createRouter, createWebHistory } from 'vue-router'
+import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
+import { createWebHistory } from 'vue-router'
+import { createRouter } from 'vue-router-plugin-system'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [],
-})
-
-// Recommend registering plugins immediately after creating the router instance
-// to prevent exceptions caused by other modules accessing the router before plugins load
-RouterPlugins(router, {
-  // plugin options
-})
-
-// Also supports registration via app
-app.use(RouterPlugins, {
-  // plugin options
-})
-```
-
-### Individual Registration
-
-```ts
-import ScrollerPlugin from '@vue-spark/router-plugins/plugins/scroller'
-import { createRouter, createWebHistory } from 'vue-router'
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [],
-})
-
-// Recommend registering plugins immediately after creating the router instance
-// to prevent exceptions caused by other modules accessing the router before plugins load
-RouterPlugins(ScrollerPlugin, {
-  // plugin options
-})
-
-// Also supports registration via app
-app.use(ScrollerPlugin, {
-  // plugin options
+  plugins: [
+    // initialize the plugin
+    ScrollerPlugin({
+      selectors: {
+        window: true,
+        '.scrollable': true,
+      },
+    }),
+  ],
 })
 ```
 
@@ -262,7 +240,6 @@ Simulates mobile navigation direction (forward/backward/refresh) for animation a
     <Transition
       :name="transitionName"
       :css="!!transitionName"
-      @after-enter="$router.scroller.trigger()"
     >
       <KeepAlive :include="[...keepAliveValues]">
         <Component
@@ -365,17 +342,23 @@ Automatically saves and restores scroll position for long pages or list pages.
 <summary>Usage Example</summary>
 
 ```ts
-// main.ts
-import ScrollerPlugin from '@vue-spark/router-plugins/plugins/scroller'
-import router from './router'
+// router/index.ts
+import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
+import { createWebHistory } from 'vue-router'
+import { createRouter } from 'vue-router-plugin-system'
 
-ScrollerPlugin(router, {
-  // Scroll element selectors
-  scroller: {
-    window: true,
-    body: true,
-    '.scrollable': true,
-  },
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [],
+  plugins: [
+    ScrollerPlugin({
+      // set the selectors you want to use
+      selectors: {
+        window: true,
+        '.scrollable': true,
+      },
+    }),
+  ],
 })
 ```
 
@@ -395,16 +378,12 @@ When using with `<Transition>`, manually trigger scroll restoration via `router.
 
 #### Configuration Options
 
-````ts
+```ts
 interface ScrollerOptions {
   /**
-   * Scroll element selectors, supports special selector [window](file:///home/leihaohao/workspaces/own/vuespark/router-plugins/node_modules/.pnpm/nice-fns@2.1.1/node_modules/nice-fns/dist/index.d.ts#L339-L339)
-   * @default
-   * ```ts
-   * { window: true, body: true }
-   * ```
+   * Scroll element selectors, supports special selector `window`
    */
-  selectors?: Record<string, boolean | ScrollHandler>
+  selectors: Record<string, boolean | ScrollHandler>
   /**
    * Scroll behavior
    */
@@ -416,7 +395,7 @@ interface ScrollerOptions {
    */
   scrollOnlyBackward?: boolean
 }
-````
+```
 
 #### Type Definitions
 
@@ -509,3 +488,12 @@ interface Router {
   previousRoute: ShallowRef<PreviousRoute | undefined>
 }
 ```
+
+## Migration Guide
+
+### From v0.x to v1.x
+
+- Remove all plugin registration shorthands, only support on-demand importing required plugins.
+- Plugins are developed based on vue-router-plugin-system (old plugin registration method is deprecated). See its documentation for details.
+- Single plugin import path changed to `@vue-spark/router-plugins/[plugin-name]`.
+- `selectors` configuration item in ScrollerPlugin has no default value and is now required.

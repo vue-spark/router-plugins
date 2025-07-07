@@ -2,6 +2,8 @@
 
 轻量级 Vue Router 4 插件集合——以最小开销扩展路由能力。
 
+> 从 `v1.0.0` 起，插件基于 [vue-router-plugin-system](https://github.com/vue-spark/vue-router-plugin-system) 开发（弃用旧插件注册方式），详见其文档。
+
 [English Document](./README.md)
 
 [在线示例](https://vue-spark.github.io/router-plugins/)
@@ -12,47 +14,25 @@
 npm i @vue-spark/router-plugins
 ```
 
-### 全部注册
+### 插件注册
 
 ```ts
-import RouterPlugins from '@vue-spark/router-plugins'
-import { createRouter, createWebHistory } from 'vue-router'
+import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
+import { createWebHistory } from 'vue-router'
+import { createRouter } from 'vue-router-plugin-system'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [],
-})
-
-// 建议在创建 router 实例后立即注册插件，防止其他模块在插件加载前访问 router 实例导致异常
-RouterPlugins(router, {
-  // 插件配置项
-})
-
-// 也支持通过 app 注册
-app.use(RouterPlugins, {
-  // 插件配置项
-})
-```
-
-### 单个注册
-
-```ts
-import ScrollerPlugin from '@vue-spark/router-plugins/plugins/scroller'
-import { createRouter, createWebHistory } from 'vue-router'
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [],
-})
-
-// 建议在创建 router 实例后立即注册插件，防止其他模块在插件加载前访问 router 实例导致异常
-RouterPlugins(ScrollerPlugin, {
-  // 插件配置项
-})
-
-// 也支持通过 app 注册
-app.use(ScrollerPlugin, {
-  // 插件配置项
+  plugins: [
+    // 初始化插件
+    ScrollerPlugin({
+      selectors: {
+        window: true,
+        '.scrollable': true,
+      },
+    }),
+  ],
 })
 ```
 
@@ -258,7 +238,6 @@ interface Router {
     <Transition
       :name="transitionName"
       :css="!!transitionName"
-      @after-enter="$router.scroller.trigger()"
     >
       <KeepAlive :include="[...keepAliveValues]">
         <Component
@@ -360,17 +339,23 @@ interface Router {
 <summary>使用示例</summary>
 
 ```ts
-// main.ts
-import ScrollerPlugin from '@vue-spark/router-plugins/plugins/scroller'
-import router from './router'
+// router/index.ts
+import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
+import { createWebHistory } from 'vue-router'
+import { createRouter } from 'vue-router-plugin-system'
 
-ScrollerPlugin(router, {
-  // 设置滚动位置的元素选择器
-  scroller: {
-    window: true,
-    body: true,
-    '.scrollable': true,
-  },
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [],
+  plugins: [
+    ScrollerPlugin({
+      // 设置滚动目标
+      selectors: {
+        window: true,
+        '.scrollable': true,
+      },
+    }),
+  ],
 })
 ```
 
@@ -390,16 +375,12 @@ ScrollerPlugin(router, {
 
 #### 配置项
 
-````ts
+```ts
 interface ScrollerOptions {
   /**
    * 滚动元素选择器，支持特殊选择器 `window`
-   * @default
-   * ```ts
-   * { window: true, body: true }
-   * ```
    */
-  selectors?: Record<string, boolean | ScrollHandler>
+  selectors: Record<string, boolean | ScrollHandler>
   /**
    * 滚动行为
    */
@@ -411,7 +392,7 @@ interface ScrollerOptions {
    */
   scrollOnlyBackward?: boolean
 }
-````
+```
 
 #### 类型定义
 
@@ -503,3 +484,12 @@ interface Router {
   previousRoute: ShallowRef<PreviousRoute | undefined>
 }
 ```
+
+## 迁移指南
+
+### v0.x 迁移至 v1.x
+
+- 移除全部插件注册快捷方式，仅支持按需导入需要注册的插件。
+- 插件基于 [vue-router-plugin-system](https://github.com/vue-spark/vue-router-plugin-system) 开发（弃用旧插件注册方式），详见其文档。
+- 单一插件导入路径改为 `@vue-spark/router-plugins/[plugin-name]`。
+- ScrollerPlugin 配置项 `selectors` 移除默认值并改为必填项。
