@@ -56,7 +56,8 @@
     "play:preview": "pnpm run play:build && pnpm -C play run preview",
     "release": "release-it",
     "taze": "taze -iI major",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "prepare": "simple-git-hooks"
   },
   "peerDependencies": {
     "vue": "^3",
