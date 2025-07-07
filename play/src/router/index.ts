@@ -1,7 +1,25 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import HistoryStatePlugin from '@vue-spark/router-plugins/history-state'
+import IsNavigatingPlugin from '@vue-spark/router-plugins/is-navigating'
+import NavigationDirectionPlugin from '@vue-spark/router-plugins/navigation-direction'
+import PreviousRoutePlugin from '@vue-spark/router-plugins/previous-route'
+import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
+import { createWebHistory } from 'vue-router'
+import { createRouter } from 'vue-router-plugin-system'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  plugins: [
+    HistoryStatePlugin(),
+    IsNavigatingPlugin(),
+    NavigationDirectionPlugin(),
+    PreviousRoutePlugin(),
+    ScrollerPlugin({
+      selectors: {
+        'window': true,
+        '.scrollable': true,
+      },
+    }),
+  ],
   routes: [
     {
       path: '/',

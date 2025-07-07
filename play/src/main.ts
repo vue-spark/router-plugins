@@ -1,4 +1,3 @@
-import RouterPlugins from '@vue-spark/router-plugins'
 import { createApp } from 'vue'
 import { BetterRouterView } from 'vue-router-better-view'
 import App from './App.vue'
@@ -10,17 +9,6 @@ import './main.css'
 
 const app = createApp(App)
 
-app
-  .use(router)
-  .use(RouterPlugins, {
-    scroller: {
-      selectors: {
-        'window': true,
-        'body': true,
-        '.scrollable': true,
-      },
-    },
-  })
-  .use(BetterRouterView)
+app.use(router).use(BetterRouterView)
 
 app.mount('#app')

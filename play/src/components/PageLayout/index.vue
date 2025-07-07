@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { PageLayoutProps } from './interface'
-import { NavigationDirection } from '@vue-spark/router-plugins'
+import { NavigationDirection } from '@vue-spark/router-plugins/navigation-direction'
 import { isFunction } from 'nice-fns'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

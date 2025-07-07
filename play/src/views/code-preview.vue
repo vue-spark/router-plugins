@@ -46,16 +46,23 @@ onActivated(() => {
   {
     plugin: 'ScrollerPlugin',
     code: `\
-// main.ts
-app.use(RouterPlugins, {
-  scroller: {
-    selectors: {
-      window: true,
-      body: true,
-      // 滚动元素选择器
-      '.scrollable': true,
-    },
-  },
+// router.ts
+import { ScrollerPlugin } from '@vue-spark/router-plugins/scroller'
+import { createRouter } from 'vue-router-plugin-system'
+import { createWebHistory } from 'vue-router'
+
+createRouter({
+  history: createWebHistory(),
+  plugins: [
+    ScrollerPlugin({
+      selectors: {
+        window: true,
+        // 滚动元素选择器
+        '.scrollable': true,
+      },
+    }),
+  ],
+  routes: [],
 })
 
 // App.vue
