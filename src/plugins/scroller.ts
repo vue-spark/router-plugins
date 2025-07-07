@@ -1,7 +1,7 @@
 import type { ShallowReactive } from 'vue'
 import type * as VueRouter from 'vue-router'
 import type { RouterPlugin } from 'vue-router-plugin-system'
-import type { Awaitable, SetRequired } from '../types'
+import type { Awaitable } from '../types'
 import type { INavigationDirection } from './navigation-direction'
 import { nextTick, shallowReactive } from 'vue'
 import { isFunction } from '../utils'
@@ -47,12 +47,8 @@ export interface Scroller {
 export interface ScrollerOptions {
   /**
    * 滚动元素选择器，支持特殊选择器 `window`
-   * @default
-   * ```ts
-   * { window: true, body: true }
-   * ```
    */
-  selectors?: Record<string, boolean | ScrollHandler>
+  selectors: Record<string, boolean | ScrollHandler>
   /**
    * 滚动行为
    */
@@ -74,7 +70,7 @@ function querySelector(selector: string): ScrollableElement | null {
 }
 
 async function traversePositions(
-  options: SetRequired<ScrollerOptions, 'selectors'>,
+  options: ScrollerOptions,
   callback: (ctx: {
     selector: string
     handler: boolean | ScrollHandler
@@ -94,9 +90,7 @@ function getScrollPosition(el: ScrollableElement): ScrollPositionCoordinates {
   return { left: el.scrollLeft, top: el.scrollTop }
 }
 
-function capturePositions(
-  options: SetRequired<ScrollerOptions, 'selectors'>,
-): ScrollPositionCoordinatesGroup {
+function capturePositions(options: ScrollerOptions): ScrollPositionCoordinatesGroup {
   const pos: ScrollPositionCoordinatesGroup = {}
   for (const selector of Object.keys(options.selectors)) {
     const el = querySelector(selector)
@@ -108,7 +102,7 @@ function capturePositions(
 }
 
 async function applyPositions(
-  options: SetRequired<ScrollerOptions, 'selectors'>,
+  options: ScrollerOptions,
   {
     positions,
     direction,
@@ -152,7 +146,7 @@ async function applyPositions(
   })
 }
 
-function ScrollerPlugin(userOptions: ScrollerOptions = {}): RouterPlugin {
+function ScrollerPlugin(options: ScrollerOptions): RouterPlugin {
   return ({ router, onUninstall }) => {
     if (router.options.scrollBehavior) {
       console.warn(
@@ -162,8 +156,6 @@ function ScrollerPlugin(userOptions: ScrollerOptions = {}): RouterPlugin {
 
     router.options.scrollBehavior = () => {}
 
-    const { selectors = { window: true, body: true } } = userOptions
-    const options = { ...userOptions, selectors }
     const positionsMap = shallowReactive(new Map<string, ScrollPositionCoordinatesGroup>())
 
     const removeRouterResolveGuard = router.beforeResolve((_, from) => {

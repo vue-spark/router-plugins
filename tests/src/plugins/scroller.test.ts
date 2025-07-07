@@ -74,6 +74,9 @@ describe('scrollerPlugin', () => {
     const router = await initRouter([
       NavigationDirectionPlugin(),
       ScrollerPlugin({
+        selectors: {
+          window: true,
+        },
         scrollOnlyBackward: true,
       }),
     ])
