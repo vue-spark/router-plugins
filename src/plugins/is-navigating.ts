@@ -1,23 +1,23 @@
 import type { ShallowRef } from 'vue'
-import type { RouterPlugin } from '../plugin'
+import type { RouterPlugin } from 'vue-router-plugin-system'
 import { shallowRef } from 'vue'
-import { onRouterUninstall } from '../hooks/on-router-uninstall'
-import { definePlugin } from '../plugin'
 
-const IsNavigatingPlugin: RouterPlugin = /* @__PURE__ */ definePlugin((router) => {
-  const isNavigating = (router.isNavigating = shallowRef(false))
+function IsNavigatingPlugin(): RouterPlugin {
+  return ({ router, onUninstall }) => {
+    const isNavigating = (router.isNavigating = shallowRef(false))
 
-  router.beforeEach(() => {
-    isNavigating.value = true
-  })
-  router.afterEach(() => {
-    isNavigating.value = false
-  })
+    router.beforeEach(() => {
+      isNavigating.value = true
+    })
+    router.afterEach(() => {
+      isNavigating.value = false
+    })
 
-  onRouterUninstall(router, () => {
-    isNavigating.value = false
-  })
-})
+    onUninstall(() => {
+      isNavigating.value = false
+    })
+  }
+}
 
 export { IsNavigatingPlugin as default, IsNavigatingPlugin }
 

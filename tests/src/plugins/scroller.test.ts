@@ -1,4 +1,3 @@
-import type { ScrollerOptions } from '@src/plugins/scroller'
 import NavigationDirectionPlugin from '@src/plugins/navigation-direction'
 import ScrollerPlugin from '@src/plugins/scroller'
 import { describe, expect, it, vi } from 'vitest'
@@ -6,7 +5,7 @@ import { h, nextTick } from 'vue'
 import { initRouterFactory, routerBackAsync } from '../utils'
 
 describe('scrollerPlugin', () => {
-  const initRouter = initRouterFactory<ScrollerOptions>({
+  const initRouter = initRouterFactory({
     routes: [
       {
         path: '/',
@@ -17,9 +16,8 @@ describe('scrollerPlugin', () => {
         component: { render: () => h('div', { style: { height: '200vh' } }, 'home') },
       },
     ],
-    plugins: (router, options = {}) => {
-      NavigationDirectionPlugin(router)
-      ScrollerPlugin(router, { selectors: { window: true }, ...options })
+    pluginsFactory() {
+      return [NavigationDirectionPlugin(), ScrollerPlugin({ selectors: { window: true } })]
     },
   })
 
@@ -54,11 +52,14 @@ describe('scrollerPlugin', () => {
 
   it('should handle scroll handlers', async () => {
     const customHandler = vi.fn().mockReturnValue({ top: 200 })
-    const router = await initRouter({
-      selectors: {
-        window: customHandler,
-      },
-    })
+    const router = await initRouter([
+      NavigationDirectionPlugin(),
+      ScrollerPlugin({
+        selectors: {
+          window: customHandler,
+        },
+      }),
+    ])
 
     window.scrollTo({ top: 500 })
 
@@ -70,9 +71,12 @@ describe('scrollerPlugin', () => {
   })
 
   it('should respect scrollOnlyBackward option', async () => {
-    const router = await initRouter({
-      scrollOnlyBackward: true,
-    })
+    const router = await initRouter([
+      NavigationDirectionPlugin(),
+      ScrollerPlugin({
+        scrollOnlyBackward: true,
+      }),
+    ])
 
     window.scrollTo(0, 200)
     await router.push('/home')

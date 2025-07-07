@@ -1,9 +1,13 @@
 import HistoryStatePlugin from '@src/plugins/history-state'
 import { describe, expect, it } from 'vitest'
-import { initRouterFactory, mockRouterUninstall } from '../utils'
+import { initRouterFactory } from '../utils'
 
 describe.concurrent('historyStatePlugin', () => {
-  const initRouter = initRouterFactory({ plugins: [HistoryStatePlugin] })
+  const initRouter = initRouterFactory({
+    pluginsFactory() {
+      return [HistoryStatePlugin()]
+    },
+  })
 
   it('should expose historyState', async () => {
     const router = await initRouter()
@@ -70,7 +74,7 @@ describe.concurrent('historyStatePlugin', () => {
 
   it('should destroy plugin correctly', async () => {
     const router = await initRouter()
-    await mockRouterUninstall(router)
+    router.historyState.destroy()
     expect(router.options.history.state[router.historyState.namespace]).toBeUndefined()
   })
 })

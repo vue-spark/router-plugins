@@ -3,12 +3,21 @@ import { describe, expect, it } from 'vitest'
 import { initRouterFactory } from '../utils'
 
 describe.concurrent('previousRoutePlugin', () => {
-  const initRouter = initRouterFactory({ plugins: [PreviousRoutePlugin] })
+  const initRouter = initRouterFactory({
+    pluginsFactory() {
+      return [PreviousRoutePlugin()]
+    },
+  })
 
   it('should expose previousRoute as a shallow ref', async () => {
     const router = await initRouter()
     expect(router.previousRoute).toBeDefined()
-    expect(router.previousRoute.value).toBeUndefined()
+    expect(router.previousRoute.value).toStrictEqual({
+      path: '/',
+      fullPath: '/',
+      name: undefined,
+      hash: '',
+    })
   })
 
   it('should update previousRoute after multiple navigation', async () => {

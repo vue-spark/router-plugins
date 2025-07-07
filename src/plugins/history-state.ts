@@ -1,8 +1,6 @@
 /* eslint-disable ts/no-empty-object-type */
 import type * as VueRouter from 'vue-router'
-import type { RouterPlugin } from '../plugin'
-import { onRouterUninstall } from '../hooks/on-router-uninstall'
-import { definePlugin } from '../plugin'
+import type { RouterPlugin } from 'vue-router-plugin-system'
 import { assign, isBrowser, isString } from '../utils'
 
 export interface HistoryStateManager {
@@ -185,44 +183,46 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
 }
 
 const DEFAULT_NAMESPACE = '__routerPlugins__historyStatePlugin__'
-const HistoryStatePlugin: RouterPlugin = /* @__PURE__ */ definePlugin((router) => {
-  const stateManagerMap = new Map<string, HistoryStateManager>()
+function HistoryStatePlugin(): RouterPlugin {
+  return ({ router, onUninstall }) => {
+    const stateManagerMap = new Map<string, HistoryStateManager>()
 
-  let defaultStateManager: HistoryStateManager | null = createStateManager(
-    router,
-    DEFAULT_NAMESPACE,
-  )
-  stateManagerMap.set(DEFAULT_NAMESPACE, defaultStateManager)
+    let defaultStateManager: HistoryStateManager | null = createStateManager(
+      router,
+      DEFAULT_NAMESPACE,
+    )
+    stateManagerMap.set(DEFAULT_NAMESPACE, defaultStateManager)
 
-  const stateManagerFactory = (namespace: string): HistoryStateManager => {
-    if (namespace && !stateManagerMap.has(namespace)) {
-      stateManagerMap.set(namespace, createStateManager(router, namespace))
+    const stateManagerFactory = (namespace: string): HistoryStateManager => {
+      if (namespace && !stateManagerMap.has(namespace)) {
+        stateManagerMap.set(namespace, createStateManager(router, namespace))
+      }
+      return stateManagerMap.get(namespace || DEFAULT_NAMESPACE)!
     }
-    return stateManagerMap.get(namespace || DEFAULT_NAMESPACE)!
+
+    router.historyState = assign(stateManagerFactory, defaultStateManager)
+
+    // 重写只读属性
+    Object.defineProperties(router.historyState, {
+      raw: {
+        get() {
+          return defaultStateManager?.raw
+        },
+      },
+      namespace: {
+        get() {
+          return defaultStateManager?.namespace
+        },
+      },
+    })
+
+    onUninstall(() => {
+      defaultStateManager = null
+      stateManagerMap.forEach(stateManager => stateManager.destroy())
+      stateManagerMap.clear()
+    })
   }
-
-  router.historyState = assign(stateManagerFactory, defaultStateManager)
-
-  // 重写只读属性
-  Object.defineProperties(router.historyState, {
-    raw: {
-      get() {
-        return defaultStateManager?.raw
-      },
-    },
-    namespace: {
-      get() {
-        return defaultStateManager?.namespace
-      },
-    },
-  })
-
-  onRouterUninstall(router, () => {
-    defaultStateManager = null
-    stateManagerMap.forEach(stateManager => stateManager.destroy())
-    stateManagerMap.clear()
-  })
-})
+}
 
 export { HistoryStatePlugin as default, HistoryStatePlugin }
 

@@ -1,9 +1,10 @@
-import type { FunctionRouterPlugin } from '@src/plugin'
 import type { Router, RouteRecordRaw } from 'vue-router'
-import { h, nextTick } from 'vue'
-import { createMemoryHistory, createRouter, START_LOCATION } from 'vue-router'
+import type { RouterPlugin } from 'vue-router-plugin-system'
+import { h } from 'vue'
+import { createMemoryHistory } from 'vue-router'
+import { createRouter } from 'vue-router-plugin-system'
 
-export function initRouterFactory<Options = never>({
+export function initRouterFactory({
   routes = [
     {
       path: '/',
@@ -14,37 +15,24 @@ export function initRouterFactory<Options = never>({
       component: { render: () => h('div', 'home') },
     },
   ],
-  plugins,
+  pluginsFactory = () => [],
 }: {
   routes?: RouteRecordRaw[]
-  plugins?: FunctionRouterPlugin[] | ((router: Router, options?: Options) => void)
+  pluginsFactory?: () => RouterPlugin[]
 } = {}) {
-  return async (options?: Options) => {
+  return async (plugins = pluginsFactory()) => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes,
+      plugins,
     })
 
     // Because memoryHistory doesn't initialize the jump,
     // we need to manually push it once
     await router.push('/')
 
-    if (plugins) {
-      if (typeof plugins === 'function') {
-        plugins(router, options)
-      }
-      else {
-        plugins.forEach(p => p(router, options))
-      }
-    }
-
     return router
   }
-}
-
-export async function mockRouterUninstall(router: Router): Promise<void> {
-  router.currentRoute.value = START_LOCATION
-  await nextTick()
 }
 
 export async function routerBackAsync(router: Router): Promise<void> {

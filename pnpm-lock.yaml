@@ -65,6 +65,9 @@ importers:
       vue-router:
         specifier: ^4.5.1
         version: 4.5.1(vue@3.5.14(typescript@5.8.3))
+      vue-router-plugin-system:
+        specifier: ^1.1.0
+        version: 1.1.0(vue-router@4.5.1(vue@3.5.14(typescript@5.8.3)))(vue@3.5.14(typescript@5.8.3))
 
   play:
     dependencies:
@@ -3853,6 +3856,12 @@ packages:
     peerDependencies:
       vue: ^3
       vue-router: ^4
+
+  vue-router-plugin-system@1.1.0:
+    resolution: {integrity: sha512-Y218XsAhEaV+yCmAU6zoBXk24oTlbUmZbeJc/IWGccmERdVAfg/eIhjGVpHe6UU69BUTEXN85L+LpJYcyelPzg==}
+    peerDependencies:
+      vue: ^3.0.0
+      vue-router: ^4.0.0
 
   vue-router@4.5.1:
     resolution: {integrity: sha512-ogAF3P97NPm8fJsE4by9dwSYtDwXIY1nFY9T6DyQnGHd1E2Da94w9JIolpe42LJGIl0DwOHBi8TcRPlPGwbTtw==}
@@ -7966,6 +7975,11 @@ snapshots:
       - supports-color
 
   vue-router-better-view@0.1.0(vue-router@4.5.1(vue@3.5.14(typescript@5.8.3)))(vue@3.5.14(typescript@5.8.3)):
+    dependencies:
+      vue: 3.5.14(typescript@5.8.3)
+      vue-router: 4.5.1(vue@3.5.14(typescript@5.8.3))
+
+  vue-router-plugin-system@1.1.0(vue-router@4.5.1(vue@3.5.14(typescript@5.8.3)))(vue@3.5.14(typescript@5.8.3)):
     dependencies:
       vue: 3.5.14(typescript@5.8.3)
       vue-router: 4.5.1(vue@3.5.14(typescript@5.8.3))

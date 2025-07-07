@@ -1,12 +1,11 @@
-import type { NavigationDirectionOptions } from '@src/plugins/navigation-direction'
 import NavigationDirectionPlugin, { NavigationDirection } from '@src/plugins/navigation-direction'
 import { describe, expect, it, vi } from 'vitest'
 import { initRouterFactory, routerBackAsync } from '../utils'
 
 describe.concurrent('navigationDirectionPlugin', () => {
-  const initRouter = initRouterFactory<NavigationDirectionOptions>({
-    plugins: (router, options) => {
-      NavigationDirectionPlugin(router, options)
+  const initRouter = initRouterFactory({
+    pluginsFactory() {
+      return [NavigationDirectionPlugin()]
     },
   })
 
@@ -65,7 +64,9 @@ describe.concurrent('navigationDirectionPlugin', () => {
 
   it('should use custom direction resolver', async () => {
     const customResolver = vi.fn().mockReturnValue(NavigationDirection.backward)
-    const router = await initRouter({ directionResolver: customResolver })
+    const router = await initRouter([
+      NavigationDirectionPlugin({ directionResolver: customResolver }),
+    ])
 
     await router.push('/home')
 

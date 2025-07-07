@@ -3,7 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { initRouterFactory } from '../utils'
 
 describe.concurrent('isNavigatingPlugin', () => {
-  const initRouter = initRouterFactory({ plugins: [IsNavigatingPlugin] })
+  const initRouter = initRouterFactory({
+    pluginsFactory() {
+      return [IsNavigatingPlugin()]
+    },
+  })
 
   it('should expose isNavigating as a shallow ref', async () => {
     const router = await initRouter()
