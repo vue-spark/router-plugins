@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.1](https://github.com/vue-spark/router-plugins/compare/v0.1.0...v0.1.1) (2025-07-07)
+
+### Bug Fixes
+
+- **history-state:** 修复插件问题 ([d8f6359](https://github.com/vue-spark/router-plugins/commit/d8f63593cccdec6b4daaf3072c47500cb4eacbc9))
+
+### Chores
+
+- 从发布的文件中排除 README.md ([3c8f3b7](https://github.com/vue-spark/router-plugins/commit/3c8f3b7239c389f719e212306c9564477ffb7d3b))
+
+### Docs
+
+- 更新 homepage 字段从 wiki 链接改为 README 链接 ([6c9f5e3](https://github.com/vue-spark/router-plugins/commit/6c9f5e3f130f2a9e21a4782fabd7122d544e0c6a))
+- 更新 README 文件中的文档链接 ([48020f2](https://github.com/vue-spark/router-plugins/commit/48020f287d5981ab8d7ac59e774346f3c204f4d3))
+- 更新 README 文件中的文档链接 ([65c3480](https://github.com/vue-spark/router-plugins/commit/65c3480416a7b5bd68eba15875b7b43699104281))
+- 移除示例代码展开按钮的样式 ([a44fa67](https://github.com/vue-spark/router-plugins/commit/a44fa671f54b4c728003d6ecd0b10d00df495838))
+
 ## [0.1.0](https://github.com/vue-spark/router-plugins/compare/v0.1.0-1...v0.1.0) (2025-06-10)
 
 ### Chores
