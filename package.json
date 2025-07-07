@@ -22,22 +22,13 @@
     "state"
   ],
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./plugins/*": {
-      "types": "./dist/plugins/*.d.ts",
-      "import": "./dist/plugins/*.js"
-    },
-    "./*": "./*"
+    "./*": "./dist/*.js",
+    "./package.json": "./package.json"
   },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
     "CHANGELOG.md",
     "dist"
@@ -59,8 +50,7 @@
     "prepare": "simple-git-hooks"
   },
   "peerDependencies": {
-    "vue": "^3",
-    "vue-router": "^4"
+    "vue-router-plugin-system": "^1.0.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.13.2",
