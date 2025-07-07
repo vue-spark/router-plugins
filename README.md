@@ -2,7 +2,7 @@
 
 Lightweight Vue Router 4 plugin collection - extend routing capabilities with minimal overhead.
 
-[中文文档](https://github.com/vue-spark/router-plugins/blob/dev/README.zh-CN.md)
+[中文文档](./README.zh-CN.md)
 
 [Online example](https://vue-spark.github.io/router-plugins/)
 
