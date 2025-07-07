@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.0.0](https://github.com/vue-spark/router-plugins/compare/v0.1.1...v1.0.0) (2025-07-07)
+
+### ⚠ BREAKING CHANGES
+
+- **scroller:** 移除 selectors 默认值并改为必填项
+- 重构 Vue Router 插件系统
+
+### Chores
+
+- **play:** 更新演练场代码 ([be228c8](https://github.com/vue-spark/router-plugins/commit/be228c8ca7052663f0c6076234ca1097646d86aa))
+
+### Refactors
+
+- **scroller:** 移除 selectors 默认值并改为必填项 ([0dbb493](https://github.com/vue-spark/router-plugins/commit/0dbb493be668a5d8ccb8559bffc36a2c300f6350))
+- 重构 Vue Router 插件系统 ([40b7fa5](https://github.com/vue-spark/router-plugins/commit/40b7fa5c3ba73c43c3253cbaff6698b1a9a8e9ce))
+
+### Docs
+
+- **README:** 更新文档以适配 v1.0.0 新版本 ([0775544](https://github.com/vue-spark/router-plugins/commit/07755447b465e0482f1f82d98dddac72e2504710))
+
 ## [0.1.1](https://github.com/vue-spark/router-plugins/compare/v0.1.0...v0.1.1) (2025-07-07)
 
 ### Bug Fixes
