@@ -3,7 +3,7 @@ import type * as VueRouter from 'vue-router'
 import type { RouterPlugin } from '../plugin'
 import { onRouterUninstall } from '../hooks/on-router-uninstall'
 import { definePlugin } from '../plugin'
-import { assign, isString } from '../utils'
+import { assign, isBrowser, isString } from '../utils'
 
 export interface HistoryStateManager {
   /**
@@ -109,6 +109,12 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
   // 立即同步一次 historyState
   syncHistoryState()
 
+  // 当 routerHistory 是 MemoryHistory 时需要手动触发初次导航才会进入到 ready 状态，
+  // 这里在 isReady 成功后同步一次 historyState
+  if (!isBrowser || routerHistory.state !== history.state) {
+    router.isReady().then(() => syncHistoryState())
+  }
+
   // 导航成功时同步延迟设置的状态数据
   const removeRouterGuard = router.afterEach((_, __, failure) => {
     !failure && applyDeferred()
@@ -181,7 +187,12 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
 const DEFAULT_NAMESPACE = '__routerPlugins__historyStatePlugin__'
 const HistoryStatePlugin: RouterPlugin = /* @__PURE__ */ definePlugin((router) => {
   const stateManagerMap = new Map<string, HistoryStateManager>()
-  stateManagerMap.set(DEFAULT_NAMESPACE, createStateManager(router, DEFAULT_NAMESPACE))
+
+  let defaultStateManager: HistoryStateManager | null = createStateManager(
+    router,
+    DEFAULT_NAMESPACE,
+  )
+  stateManagerMap.set(DEFAULT_NAMESPACE, defaultStateManager)
 
   const stateManagerFactory = (namespace: string): HistoryStateManager => {
     if (namespace && !stateManagerMap.has(namespace)) {
@@ -190,9 +201,24 @@ const HistoryStatePlugin: RouterPlugin = /* @__PURE__ */ definePlugin((router) =
     return stateManagerMap.get(namespace || DEFAULT_NAMESPACE)!
   }
 
-  router.historyState = Object.assign(stateManagerFactory, stateManagerMap.get(DEFAULT_NAMESPACE)!)
+  router.historyState = assign(stateManagerFactory, defaultStateManager)
+
+  // 重写只读属性
+  Object.defineProperties(router.historyState, {
+    raw: {
+      get() {
+        return defaultStateManager?.raw
+      },
+    },
+    namespace: {
+      get() {
+        return defaultStateManager?.namespace
+      },
+    },
+  })
 
   onRouterUninstall(router, () => {
+    defaultStateManager = null
     stateManagerMap.forEach(stateManager => stateManager.destroy())
     stateManagerMap.clear()
   })
