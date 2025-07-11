@@ -2,7 +2,7 @@
 
 Lightweight Vue Router 4 plugin collection - extend routing capabilities with minimal overhead.
 
-> Starting from v1.0.0, the plugin is developed based on vue-router-plugin-system (the old plugin registration method is deprecated). See its documentation for details.
+> Starting from v1.0.0, the plugin is developed based on [vue-router-plugin-system](https://github.com/vue-spark/vue-router-plugin-system) (the old plugin registration method is deprecated). See its documentation for details.
 
 [中文文档](./README.zh-CN.md)
 
@@ -494,6 +494,6 @@ interface Router {
 ### From v0.x to v1.x
 
 - Remove all plugin registration shorthands, only support on-demand importing required plugins.
-- Plugins are developed based on vue-router-plugin-system (old plugin registration method is deprecated). See its documentation for details.
+- Plugins are developed based on [vue-router-plugin-system](https://github.com/vue-spark/vue-router-plugin-system) (old plugin registration method is deprecated). See its documentation for details.
 - Single plugin import path changed to `@vue-spark/router-plugins/[plugin-name]`.
 - `selectors` configuration item in ScrollerPlugin has no default value and is now required.
