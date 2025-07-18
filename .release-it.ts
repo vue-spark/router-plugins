@@ -10,7 +10,7 @@ export default {
     publish: true,
   },
   github: {
-    release: false,
+    release: true,
     releaseName: 'release v${version}',
   },
   hooks: {
