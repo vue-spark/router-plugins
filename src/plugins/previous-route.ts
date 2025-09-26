@@ -9,7 +9,7 @@ export interface PreviousRoute
     Pick<VueRouter.RouteLocationNormalizedLoaded, 'name' | 'path' | 'fullPath' | 'hash'>
   > {}
 
-function pickPreviousRoute(route: VueRouter.RouteLocationNormalizedLoaded): PreviousRoute {
+function resolvePreviousRoute(route: VueRouter.RouteLocationNormalizedLoaded): PreviousRoute {
   return Object.freeze({
     name: route.name,
     path: route.path,
@@ -24,7 +24,7 @@ function PreviousRoutePlugin(): RouterPlugin & RouterPluginInstall {
 
     router.afterEach((_, from, failure) => {
       if (failure) return
-      previousRoute.value = pickPreviousRoute(from)
+      previousRoute.value = resolvePreviousRoute(from)
     })
 
     onUninstall(() => {
