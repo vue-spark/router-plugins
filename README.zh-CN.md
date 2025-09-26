@@ -326,6 +326,27 @@ interface Router {
 
 </details>
 
+**MemoryHistory 支持**：在使用 `createMemoryHistory()` 时，由于 MemoryHistory 不提供浏览器历史记录的 delta 信息，插件会将所有导航操作（包括 `push` 和 `replace`）都识别为前进方向。如果需要在 MemoryHistory 环境下自定义方向识别逻辑，可以通过 `directionResolver` 选项来实现：
+
+```ts
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes,
+  plugins: [
+    NavigationDirectionPlugin({
+      directionResolver: ({ to, from, delta }) => {
+        // 自定义逻辑：根据路由变化判断方向
+        if (to.path !== from.path) {
+          // 可以根据具体业务逻辑判断是前进、后退还是替换
+          return NavigationDirection.unchanged // 或其他逻辑
+        }
+        return delta > 0 ? NavigationDirection.forward : NavigationDirection.backward
+      },
+    }),
+  ],
+})
+```
+
 #### 配置项
 
 ```ts

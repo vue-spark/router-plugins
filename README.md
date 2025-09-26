@@ -328,6 +328,27 @@ Simulates mobile navigation direction (forward/backward/refresh) for animation a
 
 </details>
 
+**MemoryHistory Support**: When using `createMemoryHistory()`, since MemoryHistory doesn't provide browser history delta information, the plugin will identify all navigation operations (including `push` and `replace`) as forward direction. If you need to customize direction recognition logic in MemoryHistory environment, you can use the `directionResolver` option:
+
+```ts
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes,
+  plugins: [
+    NavigationDirectionPlugin({
+      directionResolver: ({ to, from, delta }) => {
+        // Custom logic: determine direction based on route changes
+        if (to.path !== from.path) {
+          // You can determine forward/backward/replace based on business logic
+          return NavigationDirection.unchanged // or other logic
+        }
+        return delta > 0 ? NavigationDirection.forward : NavigationDirection.backward
+      },
+    }),
+  ],
+})
+```
+
 #### Configuration Options
 
 ```ts

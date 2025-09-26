@@ -47,16 +47,19 @@ describe.concurrent('navigationDirectionPlugin', () => {
     )
   })
 
-  it('should handle unchanged direction for replace', async () => {
+  it('should handle forward direction for replace in MemoryHistory', async () => {
     const router = await initRouter()
     const listener = vi.fn()
     router.navigationDirection.listen(listener)
 
     await router.replace(`/home?ts=${Date.now()}`)
 
-    expect(router.navigationDirection.currentDirection.value).toBe(NavigationDirection.unchanged)
+    // In MemoryHistory, replace operations are detected as forward navigation
+    // because historyReplaced is always false and historyDelta is null,
+    // resulting in delta = 1 (forward direction)
+    expect(router.navigationDirection.currentDirection.value).toBe(NavigationDirection.forward)
     expect(listener).toHaveBeenCalledWith(
-      NavigationDirection.unchanged,
+      NavigationDirection.forward,
       expect.any(Object),
       expect.any(Object),
     )
@@ -72,6 +75,35 @@ describe.concurrent('navigationDirectionPlugin', () => {
 
     expect(customResolver).toHaveBeenCalled()
     expect(router.navigationDirection.currentDirection.value).toBe(NavigationDirection.backward)
+  })
+
+  it('should allow custom direction resolver to handle replace as unchanged in MemoryHistory', async () => {
+    // Custom resolver that detects replace operations by checking route changes
+    const customResolver = vi.fn(({ to, from, delta }) => {
+      // In MemoryHistory, we can detect replace by checking if the path changed
+      // but we want to treat it as unchanged direction
+      if (to.path !== from.path && delta === 1) {
+        // This could be a replace operation, treat as unchanged
+        return NavigationDirection.unchanged
+      }
+      return delta > 0 ? NavigationDirection.forward : NavigationDirection.backward
+    })
+
+    const router = await initRouter([
+      NavigationDirectionPlugin({ directionResolver: customResolver }),
+    ])
+    const listener = vi.fn()
+    router.navigationDirection.listen(listener)
+
+    await router.replace(`/home?ts=${Date.now()}`)
+
+    expect(customResolver).toHaveBeenCalled()
+    expect(router.navigationDirection.currentDirection.value).toBe(NavigationDirection.unchanged)
+    expect(listener).toHaveBeenCalledWith(
+      NavigationDirection.unchanged,
+      expect.any(Object),
+      expect.any(Object),
+    )
   })
 
   it('should handle multiple listeners', async () => {

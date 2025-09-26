@@ -63,13 +63,12 @@ function NavigationDirectionPlugin(
 
     const { push: originalPush, replace: originalReplace } = routerHistory
 
-    // 保留未修改的 push 和 replace 方法，便于其他插件使用而不影响 historyReplaced 的判断
     routerHistory.originalPush = originalPush
     routerHistory.originalReplace = originalReplace
 
-    // router.push 和 router.replace 在浏览器模式下会更新 history.state.replaced 属性，
-    // 这里可以通过其感知是否为替换模式
-    let historyReplaced = false
+    // router.push 和 router.replace 在非 MemoryHistory 时会更新 history.state.replaced 属性，
+    // MemoryHistory 时固定为 false，这里可以通过其感知是否为替换模式
+    let historyReplaced: boolean = false
     routerHistory.push = (...args) => {
       try {
         return originalPush.apply(routerHistory, args)
@@ -83,7 +82,7 @@ function NavigationDirectionPlugin(
         return originalReplace.apply(routerHistory, args)
       }
       finally {
-        historyReplaced = (routerHistory.state.replaced as boolean | null) ?? true
+        historyReplaced = (routerHistory.state.replaced as boolean | null) ?? false
       }
     }
 
@@ -108,13 +107,14 @@ function NavigationDirectionPlugin(
         // 优先以 historyDelta 为准，其次可以根据 historyReplaced 判断是否为替换路由
         const delta = historyDelta ?? (historyReplaced ? 0 : 1)
         // 若设置了 nextDirection 则跳过本次的方向解析
-        const finalDirection = nextDirection || directionResolver({ to, from, delta })
+        const finalDirection = nextDirection ?? directionResolver({ to, from, delta })
         const direction = (currentDirection.value = finalDirection)
         listeners.forEach(listener => listener(direction, to, from))
       }
       finally {
         // 不论导航成功还是失败，都需要重置这些数据
         historyDelta = null
+        historyReplaced = false
         nextDirection = null
       }
     })
@@ -156,11 +156,11 @@ declare module 'vue-router' {
 
   interface RouterHistory {
     /**
-     * 未修改的 `push` 方法
+     * @deprecated
      */
     originalPush: RouterHistory['push']
     /**
-     * 未修改的 `replace` 方法
+     * @deprecated
      */
     originalReplace: RouterHistory['replace']
   }
