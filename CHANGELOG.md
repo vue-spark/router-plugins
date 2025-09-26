@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.1.0](https://github.com/vue-spark/router-plugins/compare/v1.0.0...v1.1.0) (2025-09-26)
+
+### Features
+
+- 适配 `vue-router-plugin-system` 独立插件开发模式 ([01d0c82](https://github.com/vue-spark/router-plugins/commit/01d0c82fd1a51289382e3b2ea4d62aa5ae603076))
+
+### Bug Fixes
+
+- **history-state:** 修复错误的函数返回值定义 ([7e0a6e5](https://github.com/vue-spark/router-plugins/commit/7e0a6e5a14a53ec30804408cc8c5b62afdd3d450))
+- **navigation-direction:** 修正 MemoryHistory 中的方向识别逻辑 ([43bbc4e](https://github.com/vue-spark/router-plugins/commit/43bbc4ed688bde743e35e71f3dd37895e28d4500))
+
+### Chores
+
+- 优化代码 ([a22377b](https://github.com/vue-spark/router-plugins/commit/a22377bf02c2e77c63c6778a964226bbf123d9cf))
+
+### Docs
+
+- **README:** 更新 vue-router-plugin-system 为超链接格式 ([c2fd5a8](https://github.com/vue-spark/router-plugins/commit/c2fd5a80033f660e4b6601990d5ead7d785d6c31))
+
 ## [1.0.0](https://github.com/vue-spark/router-plugins/compare/v0.1.1...v1.0.0) (2025-07-07)
 
 ### ⚠ BREAKING CHANGES
