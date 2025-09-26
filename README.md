@@ -16,6 +16,41 @@ npm i @vue-spark/router-plugins
 
 ### Plugin Registration
 
+#### Method 1：
+
+```ts
+import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
+
+// initialize the plugin and install
+ScrollerPlugin({
+  selectors: {
+    window: true,
+    '.scrollable': true,
+  },
+}).install(router)
+```
+
+#### Method 2：
+
+```ts
+import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
+
+createApp(App)
+  // register router first
+  .use(router)
+  // then register the plugin
+  .use(
+    ScrollerPlugin({
+      selectors: {
+        window: true,
+        '.scrollable': true,
+      },
+    }),
+  )
+```
+
+#### Method 3：
+
 ```ts
 import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
 import { createWebHistory } from 'vue-router'

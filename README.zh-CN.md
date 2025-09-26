@@ -16,6 +16,41 @@ npm i @vue-spark/router-plugins
 
 ### 插件注册
 
+#### 方式一：
+
+```ts
+import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
+
+// 初始化插件并安装
+ScrollerPlugin({
+  selectors: {
+    window: true,
+    '.scrollable': true,
+  },
+}).install(router)
+```
+
+#### 方式二：
+
+```ts
+import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
+
+createApp(App)
+  // 先注册路由
+  .use(router)
+  // 再注册插件
+  .use(
+    ScrollerPlugin({
+      selectors: {
+        window: true,
+        '.scrollable': true,
+      },
+    }),
+  )
+```
+
+#### 方式三：
+
 ```ts
 import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
 import { createWebHistory } from 'vue-router'

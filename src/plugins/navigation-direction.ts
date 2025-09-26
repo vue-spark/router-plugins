@@ -1,7 +1,8 @@
 import type { ShallowRef } from 'vue'
 import type * as VueRouter from 'vue-router'
-import type { RouterPlugin } from 'vue-router-plugin-system'
+import type { RouterPlugin, RouterPluginInstall } from 'vue-router-plugin-system'
 import { onScopeDispose, shallowRef } from 'vue'
+import { withInstall } from 'vue-router-plugin-system'
 
 export type NavigationDirectionResolver = (ctx: {
   to: VueRouter.RouteLocationNormalizedGeneric
@@ -51,8 +52,10 @@ const defaultDirectionResolver: NavigationDirectionResolver = ({ delta }) => {
     : NavigationDirection.unchanged
 }
 
-function NavigationDirectionPlugin(options: NavigationDirectionOptions = {}): RouterPlugin {
-  return ({ router, onUninstall }) => {
+function NavigationDirectionPlugin(
+  options: NavigationDirectionOptions = {},
+): RouterPlugin & RouterPluginInstall {
+  return withInstall(({ router, onUninstall }) => {
     const { directionResolver = defaultDirectionResolver } = options
     const routerHistory = router.options.history
     const currentDirection = shallowRef<NavigationDirection>(NavigationDirection.unchanged)
@@ -141,7 +144,7 @@ function NavigationDirectionPlugin(options: NavigationDirectionOptions = {}): Ro
       removeHistoryListener()
       removeRouterGuard()
     })
-  }
+  })
 }
 
 export { NavigationDirectionPlugin as default, NavigationDirectionPlugin }

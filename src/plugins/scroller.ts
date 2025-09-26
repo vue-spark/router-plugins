@@ -1,9 +1,10 @@
 import type { ShallowReactive } from 'vue'
 import type * as VueRouter from 'vue-router'
-import type { RouterPlugin } from 'vue-router-plugin-system'
+import type { RouterPlugin, RouterPluginInstall } from 'vue-router-plugin-system'
 import type { Awaitable } from '../types'
 import type { INavigationDirection } from './navigation-direction'
 import { nextTick, shallowReactive } from 'vue'
+import { withInstall } from 'vue-router-plugin-system'
 import { isFunction } from '../utils'
 import { NavigationDirection } from './navigation-direction'
 
@@ -146,8 +147,8 @@ async function applyPositions(
   })
 }
 
-function ScrollerPlugin(options: ScrollerOptions): RouterPlugin {
-  return ({ router, onUninstall }) => {
+function ScrollerPlugin(options: ScrollerOptions): RouterPlugin & RouterPluginInstall {
+  return withInstall(({ router, onUninstall }) => {
     if (router.options.scrollBehavior) {
       console.warn(
         '`scrollBehavior` options in Vue Router is overwritten by `ScrollerPlugin`, you can remove it from createRouter()',
@@ -193,7 +194,7 @@ function ScrollerPlugin(options: ScrollerOptions): RouterPlugin {
       removeRouterResolveGuard()
       removeRouterAfterGuard()
     })
-  }
+  })
 }
 
 export { ScrollerPlugin as default, ScrollerPlugin }

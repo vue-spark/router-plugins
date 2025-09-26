@@ -1,6 +1,7 @@
 /* eslint-disable ts/no-empty-object-type */
 import type * as VueRouter from 'vue-router'
-import type { RouterPlugin } from 'vue-router-plugin-system'
+import type { RouterPlugin, RouterPluginInstall } from 'vue-router-plugin-system'
+import { withInstall } from 'vue-router-plugin-system'
 import { assign, isBrowser, isString } from '../utils'
 
 export interface HistoryStateManager {
@@ -183,8 +184,8 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
 }
 
 const DEFAULT_NAMESPACE = '__routerPlugins__historyStatePlugin__'
-function HistoryStatePlugin(): RouterPlugin {
-  return ({ router, onUninstall }) => {
+function HistoryStatePlugin(): RouterPlugin & RouterPluginInstall {
+  return withInstall(({ router, onUninstall }) => {
     const stateManagerMap = new Map<string, HistoryStateManager>()
 
     let defaultStateManager: HistoryStateManager | null = createStateManager(
@@ -221,7 +222,7 @@ function HistoryStatePlugin(): RouterPlugin {
       stateManagerMap.forEach(stateManager => stateManager.destroy())
       stateManagerMap.clear()
     })
-  }
+  })
 }
 
 export { HistoryStatePlugin as default, HistoryStatePlugin }

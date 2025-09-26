@@ -1,9 +1,10 @@
 import type { ShallowRef } from 'vue'
-import type { RouterPlugin } from 'vue-router-plugin-system'
+import type { RouterPlugin, RouterPluginInstall } from 'vue-router-plugin-system'
 import { shallowRef } from 'vue'
+import { withInstall } from 'vue-router-plugin-system'
 
-function IsNavigatingPlugin(): RouterPlugin {
-  return ({ router, onUninstall }) => {
+function IsNavigatingPlugin(): RouterPlugin & RouterPluginInstall {
+  return withInstall(({ router, onUninstall }) => {
     const isNavigating = (router.isNavigating = shallowRef(false))
 
     router.beforeEach(() => {
@@ -16,7 +17,7 @@ function IsNavigatingPlugin(): RouterPlugin {
     onUninstall(() => {
       isNavigating.value = false
     })
-  }
+  })
 }
 
 export { IsNavigatingPlugin as default, IsNavigatingPlugin }

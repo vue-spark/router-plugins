@@ -1,7 +1,8 @@
 import type { ShallowRef } from 'vue'
 import type * as VueRouter from 'vue-router'
-import type { RouterPlugin } from 'vue-router-plugin-system'
+import type { RouterPlugin, RouterPluginInstall } from 'vue-router-plugin-system'
 import { shallowRef } from 'vue'
+import { withInstall } from 'vue-router-plugin-system'
 
 export interface PreviousRoute
   extends Readonly<
@@ -17,8 +18,8 @@ function pickPreviousRoute(route: VueRouter.RouteLocationNormalizedLoaded): Prev
   })
 }
 
-function PreviousRoutePlugin(): RouterPlugin {
-  return ({ router, onUninstall }) => {
+function PreviousRoutePlugin(): RouterPlugin & RouterPluginInstall {
+  return withInstall(({ router, onUninstall }) => {
     const previousRoute = (router.previousRoute = shallowRef())
 
     router.afterEach((_, from, failure) => {
@@ -29,7 +30,7 @@ function PreviousRoutePlugin(): RouterPlugin {
     onUninstall(() => {
       previousRoute.value = undefined
     })
-  }
+  })
 }
 
 export { PreviousRoutePlugin as default, PreviousRoutePlugin }
