@@ -19,10 +19,10 @@ export interface HistoryStateManager {
    */
   set: {
     <T extends {}>(state: Partial<T>): void
-    <T = unknown>(key: string, value: T | undefined): T | undefined
+    <T = unknown>(key: string, value: T | undefined): void
   }
 
-  /***
+  /**
    * 仅设置内存里的状态数据，不会被更新到 `router.options.history.state`
    */
   setMemory: HistoryStateManager['set']
@@ -70,9 +70,7 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
   let deferredBuffer: [keyOrState: any, value?: any][] = []
 
   const replaceHistoryState = (): void => {
-    // fix: 修复注册 NavigationDirectionPlugin 后手动调用 routerHistory.replace 会导致方向解析错误
-    const replace = routerHistory.originalReplace || routerHistory.replace
-    replace.call(routerHistory, routerHistory.location, routerHistory.state)
+    routerHistory.replace(routerHistory.location, routerHistory.state)
   }
 
   // 当 historyState 变更时需要同步到 routerHistory.state
