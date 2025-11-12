@@ -16,6 +16,8 @@ export interface HistoryStateManager {
 
   /**
    * 设置状态数据，会立即同步到 `router.options.history.state`，数据仅支持浅拷贝
+   *
+   * **注意：当设置的数据无法被 `history.state` 结构化克隆（{@link structuredClone}）时，`vue-router` 会自动重置页面！**
    */
   set: {
     <T extends {}>(state: Partial<T>): void
@@ -24,12 +26,16 @@ export interface HistoryStateManager {
 
   /**
    * 仅设置内存里的状态数据，不会被更新到 `router.options.history.state`
+   *
+   * **注意：虽然该函数不会更新 `history.state`，但是仍然不推荐设置无法被其结构化克隆（{@link structuredClone}）的数据！**
    */
   setMemory: HistoryStateManager['set']
 
   /**
    * 延迟设置状态数据，会等待 `router` 下次导航成功时再同步到 `router.options.history.state`，
    * 可以在导航前多次调用，延迟设置的状态数据会放入缓冲区，无论下次导航成功或失败都会重置缓冲区
+   *
+   * **注意：当设置的数据无法被 `history.state` 结构化克隆（{@link structuredClone}）时，`vue-router` 会自动重置页面！**
    */
   setDeferred: HistoryStateManager['set']
   /**
