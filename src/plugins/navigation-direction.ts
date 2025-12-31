@@ -71,10 +71,6 @@ function NavigationDirectionPlugin(
     const listeners = new Set<NavigationDirectionCallback>()
     const cleanupFns = new Set<() => void>()
 
-    const { push: originalPush, replace: originalReplace } = routerHistory
-    routerHistory.originalPush = originalPush.bind(routerHistory)
-    routerHistory.originalReplace = originalReplace.bind(routerHistory)
-
     // 允许手动覆盖下次导航方向
     let nextDirection: NavigationDirection | null = null
     const setNextDirection = (direction: NavigationDirection): void => {
@@ -192,16 +188,5 @@ export { NavigationDirectionPlugin as default, NavigationDirectionPlugin }
 declare module 'vue-router' {
   interface Router {
     navigationDirection: INavigationDirection
-  }
-
-  interface RouterHistory {
-    /**
-     * @deprecated
-     */
-    originalPush: RouterHistory['push']
-    /**
-     * @deprecated
-     */
-    originalReplace: RouterHistory['replace']
   }
 }
