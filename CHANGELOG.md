@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.1](https://github.com/vue-spark/router-plugins/compare/v2.0.0...v2.0.1) (2025-12-31)
+
+### Chores
+
+- 删除弃用 API ([a38711d](https://github.com/vue-spark/router-plugins/commit/a38711df06fc5336bc374686cf181032fcf6e0cf))
+
 ## [2.0.0](https://github.com/vue-spark/router-plugins/compare/v1.2.0...v2.0.0) (2025-12-31)
 
 ### ⚠ BREAKING CHANGES
