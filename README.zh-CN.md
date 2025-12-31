@@ -23,7 +23,7 @@ import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
 
 // 初始化插件并安装
 ScrollerPlugin({
-  selectors: ['window', '.scrollable'],
+  selectors: ['.scrollable'],
 }).install(router)
 ```
 
@@ -38,7 +38,7 @@ createApp(App)
   // 再注册插件
   .use(
     ScrollerPlugin({
-      selectors: ['body', '.scrollable'],
+      selectors: ['.scrollable'],
     }),
   )
 ```
@@ -56,7 +56,7 @@ const router = createRouter({
   plugins: [
     // 初始化插件
     ScrollerPlugin({
-      selectors: ['window', '.scrollable'],
+      selectors: ['.scrollable'],
     }),
   ],
 })
@@ -397,7 +397,7 @@ const router = createRouter({
   plugins: [
     ScrollerPlugin({
       // 设置滚动目标
-      selectors: ['window', '.scrollable'],
+      selectors: ['.scrollable'],
     }),
   ],
 })

@@ -23,7 +23,7 @@ import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
 
 // initialize the plugin and install
 ScrollerPlugin({
-  selectors: ['body', '.scrollable'],
+  selectors: ['.scrollable'],
 }).install(router)
 ```
 
@@ -38,7 +38,7 @@ createApp(App)
   // then register the plugin
   .use(
     ScrollerPlugin({
-      selectors: ['body', '.scrollable'],
+      selectors: ['.scrollable'],
     }),
   )
 ```
@@ -56,7 +56,7 @@ const router = createRouter({
   plugins: [
     // initialize the plugin
     ScrollerPlugin({
-      selectors: ['body', '.scrollable'],
+      selectors: ['.scrollable'],
     }),
   ],
 })
@@ -400,7 +400,7 @@ const router = createRouter({
   plugins: [
     ScrollerPlugin({
       // set the selectors you want to use
-      selectors: ['window', '.scrollable'],
+      selectors: ['.scrollable'],
     }),
   ],
 })
