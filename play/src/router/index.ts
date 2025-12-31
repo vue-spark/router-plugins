@@ -14,10 +14,7 @@ const router = createRouter({
     NavigationDirectionPlugin(),
     PreviousRoutePlugin(),
     ScrollerPlugin({
-      selectors: {
-        'window': true,
-        '.scrollable': true,
-      },
+      selectors: ['window', '.scrollable'],
     }),
   ],
   routes: [

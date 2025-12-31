@@ -1,4 +1,4 @@
-import NavigationDirectionPlugin from '@src/plugins/navigation-direction'
+import NavigationDirectionPlugin, { NavigationDirection } from '@src/plugins/navigation-direction'
 import ScrollerPlugin from '@src/plugins/scroller'
 import { describe, expect, it, vi } from 'vitest'
 import { h, nextTick } from 'vue'
@@ -17,7 +17,7 @@ describe('scrollerPlugin', () => {
       },
     ],
     pluginsFactory() {
-      return [NavigationDirectionPlugin(), ScrollerPlugin({ selectors: { window: true } })]
+      return [NavigationDirectionPlugin(), ScrollerPlugin({ selectors: ['window'] })]
     },
   })
 
@@ -55,8 +55,12 @@ describe('scrollerPlugin', () => {
     const router = await initRouter([
       NavigationDirectionPlugin(),
       ScrollerPlugin({
-        selectors: {
-          window: customHandler,
+        selectors: ['window'],
+        scrollHandler({ selector }) {
+          if (selector === 'window') {
+            return customHandler()
+          }
+          return true
         },
       }),
     ])
@@ -74,10 +78,14 @@ describe('scrollerPlugin', () => {
     const router = await initRouter([
       NavigationDirectionPlugin(),
       ScrollerPlugin({
-        selectors: {
-          window: true,
+        selectors: ['window'],
+        scrollHandler({ router }) {
+          // 仅当后退时才进行滚动恢复
+          if (router.navigationDirection.currentDirection.value === NavigationDirection.backward) {
+            return true
+          }
+          return { top: 0, left: 0 }
         },
-        scrollOnlyBackward: true,
       }),
     ])
 

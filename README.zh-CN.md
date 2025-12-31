@@ -23,10 +23,7 @@ import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
 
 // 初始化插件并安装
 ScrollerPlugin({
-  selectors: {
-    window: true,
-    '.scrollable': true,
-  },
+  selectors: ['window', '.scrollable'],
 }).install(router)
 ```
 
@@ -41,10 +38,7 @@ createApp(App)
   // 再注册插件
   .use(
     ScrollerPlugin({
-      selectors: {
-        window: true,
-        '.scrollable': true,
-      },
+      selectors: ['body', '.scrollable'],
     }),
   )
 ```
@@ -62,10 +56,7 @@ const router = createRouter({
   plugins: [
     // 初始化插件
     ScrollerPlugin({
-      selectors: {
-        window: true,
-        '.scrollable': true,
-      },
+      selectors: ['window', '.scrollable'],
     }),
   ],
 })
@@ -406,10 +397,7 @@ const router = createRouter({
   plugins: [
     ScrollerPlugin({
       // 设置滚动目标
-      selectors: {
-        window: true,
-        '.scrollable': true,
-      },
+      selectors: ['window', '.scrollable'],
     }),
   ],
 })
@@ -434,19 +422,20 @@ const router = createRouter({
 ```ts
 interface ScrollerOptions {
   /**
-   * 滚动元素选择器，支持特殊选择器 `window`
-   */
-  selectors: Record<string, boolean | ScrollHandler>
-  /**
    * 滚动行为
    */
   behavior?: ScrollBehavior
   /**
-   * 仅当导航后退时还原滚动位置，适合移动端页面
-   *
-   * **注意：该功能依赖于 `NavigationDirectionPlugin`，若没有安装则无效！**
+   * 滚动元素选择器，支持特殊选择器 `window` 和 `document`
    */
-  scrollOnlyBackward?: boolean
+  selectors: string[]
+  /**
+   * 滚动位置处理函数
+   * - 返回 `true` 时使用记录的滚动位置
+   * - 返回假值时时跳过本次滚动
+   * - 返回 `ScrollPositionCoordinates` 时使用自定义滚动位置
+   */
+  scrollHandler?: ScrollHandler
 }
 ```
 
@@ -542,6 +531,11 @@ interface Router {
 ```
 
 ## 迁移指南
+
+### v1.x 迁移至 v2.x
+
+- `ScrollerPlugin` `scrollOnlyBackward` 选项移除，使用 `scrollHandler` 处理滚动恢复。
+- `ScrollerPlugin` `selectors` 选项改为 `string[]`。
 
 ### v0.x 迁移至 v1.x
 

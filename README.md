@@ -23,10 +23,7 @@ import ScrollerPlugin from '@vue-spark/router-plugins/scroller'
 
 // initialize the plugin and install
 ScrollerPlugin({
-  selectors: {
-    window: true,
-    '.scrollable': true,
-  },
+  selectors: ['body', '.scrollable'],
 }).install(router)
 ```
 
@@ -41,10 +38,7 @@ createApp(App)
   // then register the plugin
   .use(
     ScrollerPlugin({
-      selectors: {
-        window: true,
-        '.scrollable': true,
-      },
+      selectors: ['body', '.scrollable'],
     }),
   )
 ```
@@ -62,10 +56,7 @@ const router = createRouter({
   plugins: [
     // initialize the plugin
     ScrollerPlugin({
-      selectors: {
-        window: true,
-        '.scrollable': true,
-      },
+      selectors: ['body', '.scrollable'],
     }),
   ],
 })
@@ -409,10 +400,7 @@ const router = createRouter({
   plugins: [
     ScrollerPlugin({
       // set the selectors you want to use
-      selectors: {
-        window: true,
-        '.scrollable': true,
-      },
+      selectors: ['window', '.scrollable'],
     }),
   ],
 })
@@ -437,19 +425,20 @@ When using with `<Transition>`, manually trigger scroll restoration via `router.
 ```ts
 interface ScrollerOptions {
   /**
-   * Scroll element selectors, supports special selector `window`
-   */
-  selectors: Record<string, boolean | ScrollHandler>
-  /**
    * Scroll behavior
    */
   behavior?: ScrollBehavior
   /**
-   * Restore scroll position only when navigating backward (suitable for mobile)
-   *
-   * **Note: Requires NavigationDirectionPlugin**
+   * Scroll element selectors, supports special selector `window` and `document`
    */
-  scrollOnlyBackward?: boolean
+  selectors: string[]
+  /**
+   * Scroll position handler
+   * - Return `true` to use recorded scroll position
+   * - Return falsy value to skip scroll restoration
+   * - Return `ScrollPositionCoordinates` to use custom scroll position
+   */
+  scrollHandler?: ScrollHandler
 }
 ```
 
@@ -546,6 +535,11 @@ interface Router {
 ```
 
 ## Migration Guide
+
+### From v1.x to v2.x
+
+- `ScrollerPlugin` `scrollOnlyBackward` option is removed, use `scrollHandler` instead to handle scroll restoration.
+- `ScrollerPlugin` `selectors` option now changes to `string[]`.
 
 ### From v0.x to v1.x
 
