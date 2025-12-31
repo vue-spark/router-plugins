@@ -66,7 +66,7 @@ const router = createRouter({
 
 ### <a id="HistoryStatePlugin">HistoryStatePlugin</a>
 
-Supports passing and restoring state data during browser navigation (forward/backward) after caching pages with `<KeepAlive>`.
+Supports passing and restoring state data during browser navigation (forward/backward).
 
 <details>
 <summary>Usage Example</summary>
@@ -79,6 +79,7 @@ Supports passing and restoring state data during browser navigation (forward/bac
 >
   import { shallowRef, onActivated } from 'vue'
   import { useRouter } from 'vue-router'
+  import type { PageState as ListDetailPageState } from './detail.vue'
 
   interface Item {}
 
@@ -93,17 +94,13 @@ Supports passing and restoring state data during browser navigation (forward/bac
   fetchList()
 
   const router = useRouter()
+  const listDetailPageState = router.historyState<ListDetailPageState>('/list/detail')
+
   onActivated(() => {
-    // get() retrieves state data only, persists after refresh
-    // const shouldRefresh = router.historyState.get('refreshList')
-
-    // take() removes the data reference after retrieval, returns undefined on subsequent calls
-    const shouldRefresh = router.historyState.take('refreshList')
-
-    // Refetch list when needed
-    if (shouldRefresh) {
-      fetchList()
-    }
+    listDetailPageState.withTake(({ outgoing }) => {
+      // Refetch list when needed
+      outgoing?.refreshList && fetchList()
+    })
   })
 </script>
 
@@ -123,13 +120,18 @@ Supports passing and restoring state data during browser navigation (forward/bac
 >
   import { useRouter } from 'vue-router'
 
-  const router = useRouter()
-  function handleBack() {
-    // Set memory-only historical state
-    // router.setMemory({ refreshList: true })
+  export interface PageState {
+    outgoing?: {
+      refreshList?: boolean
+    }
+  }
 
-    // Set deferred historical state after navigation
-    router.setDeferred({ refreshList: true })
+  const router = useRouter()
+  const pageState = router.historyState<PageState>('/list/detail')
+
+  function handleBack() {
+    // Set deferred state data
+    pageState.setDeferred({ outgoing: { refreshList: true } })
 
     router.back()
   }
@@ -145,7 +147,7 @@ Supports passing and restoring state data during browser navigation (forward/bac
 #### Type Definitions
 
 ```ts
-interface HistoryStateManager {
+interface HistoryStateManager<State extends {} = {}> {
   /**
    * Equivalent to `router.options.history.state`
    */
@@ -156,58 +158,65 @@ interface HistoryStateManager {
   readonly namespace: string
 
   /**
-   * Sets state data, synchronizes to `router.options.history.state` immediately
-   * Only supports shallow copy
+   * Sets state data, synchronizes to `router.options.history.state` immediately, only supports shallow copy
+   *
+   * **Note: When setting data that cannot be structured cloned by `history.state` (see {@link structuredClone}), `vue-router` will automatically reset the page!**
    */
-  set: {
-    <T extends {}>(state: Partial<T>): void
-    <T = unknown>(key: string, value: T | undefined): T | undefined
-  }
+  set: (state: NoInfer<State>) => void
 
-  /***
-   * Sets memory-only state data, won't update `router.options.history.state`
+  /**
+   * Sets memory-only state data, won't update `router.options.history.state`, only supports shallow copy
+   *
+   * **Note: Although this function won't update `history.state`, it's still not recommended to set data that cannot be structured cloned by `history.state` (see {@link structuredClone})!**
    */
-  setMemory: HistoryStateManager['set']
+  setMemory: HistoryStateManager<NoInfer<State>>['set']
 
   /**
    * Defers state setting, synchronizes to `router.options.history.state` on next successful navigation
    * Can be called multiple times before next navigation, deferred states are buffered
    * Buffer resets on both successful and failed navigation
+   *
+   * **Note: When setting data that cannot be structured cloned by `history.state` (see {@link structuredClone}), `vue-router` will automatically reset the page!**
    */
-  setDeferred: HistoryStateManager['set']
+  setDeferred: HistoryStateManager<NoInfer<State>>['set']
   /**
    * Cancels deferred state settings, resets buffer immediately
    */
   cancelDeferred: () => void
   /**
-   * Synchronizes buffered state to `router.options.history.state` immediately
+   * Applies deferred state settings, synchronizes to `router.options.history.state` immediately
    */
   applyDeferred: () => void
 
   /**
-   * Retrieves state data
+   * Gets state data
    */
-  get: {
-    <T extends {}>(): Partial<T>
-    <T = unknown>(key: string): T | undefined
-  }
+  get: () => NoInfer<State>
+  /**
+   * Gets state data and runs callback function
+   */
+  withGet: <R = void>(cb: (state: NoInfer<State>) => R) => NoInfer<R>
 
   /**
-   * Retrieves and removes state data
+   * Gets state data and deletes original cache
    */
-  take: {
-    <T extends {}>(): Partial<T>
-    <T = unknown>(key: string): T | undefined
-  }
+  take: () => NoInfer<State>
+  /**
+   * Gets state data and deletes original cache and runs callback function
+   */
+  withTake: <R = void>(cb: (state: NoInfer<State>) => R) => NoInfer<R>
 
   /**
-   * Destroys state data in current namespace
+   * Destroys state data of current namespace
    */
   destroy: () => void
 }
 
 interface Router {
-  historyState: HistoryStateManager & ((namespace: string) => HistoryStateManager)
+  historyState: {
+    <State extends {}>(namespace: string): HistoryStateManager<State>
+    readonly raw: VueRouter.HistoryState
+  }
 }
 ```
 
@@ -538,8 +547,14 @@ interface Router {
 
 ### From v1.x to v2.x
 
-- `ScrollerPlugin` `scrollOnlyBackward` option is removed, use `scrollHandler` instead to handle scroll restoration.
-- `ScrollerPlugin` `selectors` option now changes to `string[]`.
+- `ScrollerPlugin`
+  - `scrollOnlyBackward` option is removed, use `scrollHandler` instead to handle scroll restoration.
+  - `selectors` option now changes to `string[]`.
+- `HistoryStatePlugin`
+  - `HistoryStateManager` type changed to `HistoryStateManager<State extends {} = {}>`.
+  - `router.historyState` no longer supports default namespace.
+  - `set`、`setMemory`、`setDeferred`、`get`、`take` functions no longer support setting/getting single property via `key`.
+  - `set`、`setMemory`、`setDeferred`、`get`、`take` functions type changed, see type definitions.
 
 ### From v0.x to v1.x
 

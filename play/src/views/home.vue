@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { PageState as SetCountPageState } from './set-count.vue'
+import type { PageState as SignaturePadPageState } from './signature-pad.vue'
 import { onActivated, shallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import PageLayout from '@/components/PageLayout'
@@ -7,9 +9,21 @@ const router = useRouter()
 const count = shallowRef<number>()
 const signature = shallowRef<string>()
 
+const setCountPageState = router.historyState<SetCountPageState>('/set-count')
+const signaturePadHistoryState = router.historyState<SignaturePadPageState>('/signature-pad')
+
 onActivated(() => {
-  count.value = router.historyState.get('count') ?? 0
-  signature.value = router.historyState.get('signature')
+  setCountPageState.withTake(({ outgoing }) => {
+    if (outgoing) {
+      count.value = outgoing.count
+    }
+  })
+
+  signaturePadHistoryState.withTake(({ outgoing }) => {
+    if (outgoing) {
+      signature.value = outgoing.signature
+    }
+  })
 })
 </script>
 
@@ -37,8 +51,8 @@ onActivated(() => {
           type="primary"
           @click="
             () => {
-              $router.historyState.setDeferred({ count })
-              $router.push('/set-count')
+              setCountPageState.setDeferred({ incoming: { count } })
+              $router.push({ path: '/set-count' })
             }
           "
         >

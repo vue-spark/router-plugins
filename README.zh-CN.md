@@ -66,7 +66,7 @@ const router = createRouter({
 
 ### <a id="HistoryStatePlugin">HistoryStatePlugin</a>
 
-用于在使用 `<KeepAlive>` 缓存页面后，支持在浏览器导航（前进/后退）时传递和恢复状态数据。
+用于在浏览器导航（前进/后退）时传递和恢复状态数据。
 
 <details>
 <summary>使用示例</summary>
@@ -79,6 +79,7 @@ const router = createRouter({
 >
   import { shallowRef, onActivated } from 'vue'
   import { useRouter } from 'vue-router'
+  import type { PageState as ListDetailPageState } from './detail.vue'
 
   interface Item {}
 
@@ -93,17 +94,13 @@ const router = createRouter({
   fetchList()
 
   const router = useRouter()
+  const listDetailPageState = router.historyState<ListDetailPageState>('/list/detail')
+
   onActivated(() => {
-    // get() 只获取状态数据，刷新后仍然存在
-    // const shouldRefresh = router.historyState.get('refreshList')
-
-    // take() 会在获取数据后删除原数据引用，再次获取时会返回 undefined
-    const shouldRefresh = router.historyState.take('refreshList')
-
-    // 在需要时重新请求列表
-    if (shouldRefresh) {
-      fetchList()
-    }
+    listDetailPageState.withTake(({ outgoing }) => {
+      // 在需要时重新请求列表
+      outgoing?.refreshList && fetchList()
+    })
   })
 </script>
 
@@ -123,13 +120,18 @@ const router = createRouter({
 >
   import { useRouter } from 'vue-router'
 
-  const router = useRouter()
-  function handleBack() {
-    // 仅设置内存里的历史状态
-    // router.setMemory({ refreshList: true })
+  export interface PageState {
+    outgoing?: {
+      refreshList?: boolean
+    }
+  }
 
-    // 在导航后设置历史状态
-    router.setDeferred({ refreshList: true })
+  const router = useRouter()
+  const pageState = router.historyState<PageState>('/list/detail')
+
+  function handleBack() {
+    // 设置延迟状态数据
+    pageState.setDeferred({ outgoing: { refreshList: true } })
 
     router.back()
   }
@@ -145,7 +147,7 @@ const router = createRouter({
 #### 类型定义
 
 ```ts
-interface HistoryStateManager {
+interface HistoryStateManager<State extends {} = {}> {
   /**
    * 等同于 `router.options.history.state`
    */
@@ -157,22 +159,25 @@ interface HistoryStateManager {
 
   /**
    * 设置状态数据，会立即同步到 `router.options.history.state`，数据仅支持浅拷贝
+   *
+   * **注意：当设置的数据无法被 `history.state` 结构化克隆（{@link structuredClone}）时，`vue-router` 会自动重置页面！**
    */
-  set: {
-    <T extends {}>(state: Partial<T>): void
-    <T = unknown>(key: string, value: T | undefined): T | undefined
-  }
+  set: (state: NoInfer<State>) => void
 
-  /***
+  /**
    * 仅设置内存里的状态数据，不会被更新到 `router.options.history.state`
+   *
+   * **注意：虽然该函数不会更新 `history.state`，但是仍然不推荐设置无法被其结构化克隆（{@link structuredClone}）的数据！**
    */
-  setMemory: HistoryStateManager['set']
+  setMemory: HistoryStateManager<NoInfer<State>>['set']
 
   /**
    * 延迟设置状态数据，会等待 `router` 下次导航成功时再同步到 `router.options.history.state`，
    * 可以在导航前多次调用，延迟设置的状态数据会放入缓冲区，无论下次导航成功或失败都会重置缓冲区
+   *
+   * **注意：当设置的数据无法被 `history.state` 结构化克隆（{@link structuredClone}）时，`vue-router` 会自动重置页面！**
    */
-  setDeferred: HistoryStateManager['set']
+  setDeferred: HistoryStateManager<NoInfer<State>>['set']
   /**
    * 取消延迟设置的状态数据，直接重置缓冲区
    */
@@ -185,18 +190,20 @@ interface HistoryStateManager {
   /**
    * 获取状态数据
    */
-  get: {
-    <T extends {}>(): Partial<T>
-    <T = unknown>(key: string): T | undefined
-  }
+  get: () => NoInfer<State>
+  /**
+   * 获取状态数据后执行回调函数
+   */
+  withGet: <R = void>(cb: (state: NoInfer<State>) => R) => NoInfer<R>
 
   /**
    * 获取状态数据并删除原始缓存
    */
-  take: {
-    <T extends {}>(): Partial<T>
-    <T = unknown>(key: string): T | undefined
-  }
+  take: () => NoInfer<State>
+  /**
+   * 获取状态数据并删除原始缓存后执行回调函数
+   */
+  withTake: <R = void>(cb: (state: NoInfer<State>) => R) => NoInfer<R>
 
   /**
    * 销毁当前命名空间的状态数据
@@ -205,7 +212,10 @@ interface HistoryStateManager {
 }
 
 interface Router {
-  historyState: HistoryStateManager & ((namespace: string) => HistoryStateManager)
+  historyState: {
+    <State extends {}>(namespace: string): HistoryStateManager<State>
+    readonly raw: VueRouter.HistoryState
+  }
 }
 ```
 
@@ -534,8 +544,14 @@ interface Router {
 
 ### v1.x 迁移至 v2.x
 
-- `ScrollerPlugin` `scrollOnlyBackward` 选项移除，使用 `scrollHandler` 处理滚动恢复。
-- `ScrollerPlugin` `selectors` 选项改为 `string[]`。
+- `ScrollerPlugin`
+  - `scrollOnlyBackward` 选项移除，使用 `scrollHandler` 处理滚动恢复。
+  - `selectors` 选项改为 `string[]`。
+- `HistoryStatePlugin`
+  - `HistoryStateManager` 类型变更为 `HistoryStateManager<State extends {} = {}>`。
+  - `router.historyState` 不再支持默认命名空间。
+  - `set`、`setMemory`、`setDeferred`、`get`、`take` 函数不再支持通过 `key` 设置/获取单个属性。
+  - `set`、`setMemory`、`setDeferred`、`get`、`take` 函数类型变更，详见类型定义。
 
 ### v0.x 迁移至 v1.x
 

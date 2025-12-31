@@ -2,9 +2,9 @@
 import type * as VueRouter from 'vue-router'
 import type { RouterPlugin, RouterPluginInstall } from 'vue-router-plugin-system'
 import { withInstall } from 'vue-router-plugin-system'
-import { assign, isBrowser, isString } from '../utils'
+import { assign, isBrowser } from '../utils'
 
-export interface HistoryStateManager {
+export interface HistoryStateManager<State extends {} = {}> {
   /**
    * 等同于 `router.options.history.state`
    */
@@ -19,17 +19,14 @@ export interface HistoryStateManager {
    *
    * **注意：当设置的数据无法被 `history.state` 结构化克隆（{@link structuredClone}）时，`vue-router` 会自动重置页面！**
    */
-  set: {
-    <T extends {}>(state: Partial<T>): void
-    <T = unknown>(key: string, value: T | undefined): void
-  }
+  set: (state: NoInfer<State>) => void
 
   /**
    * 仅设置内存里的状态数据，不会被更新到 `router.options.history.state`
    *
    * **注意：虽然该函数不会更新 `history.state`，但是仍然不推荐设置无法被其结构化克隆（{@link structuredClone}）的数据！**
    */
-  setMemory: HistoryStateManager['set']
+  setMemory: HistoryStateManager<NoInfer<State>>['set']
 
   /**
    * 延迟设置状态数据，会等待 `router` 下次导航成功时再同步到 `router.options.history.state`，
@@ -37,7 +34,7 @@ export interface HistoryStateManager {
    *
    * **注意：当设置的数据无法被 `history.state` 结构化克隆（{@link structuredClone}）时，`vue-router` 会自动重置页面！**
    */
-  setDeferred: HistoryStateManager['set']
+  setDeferred: HistoryStateManager<NoInfer<State>>['set']
   /**
    * 取消延迟设置的状态数据，直接重置缓冲区
    */
@@ -50,18 +47,20 @@ export interface HistoryStateManager {
   /**
    * 获取状态数据
    */
-  get: {
-    <T extends {}>(): Partial<T>
-    <T = unknown>(key: string): T | undefined
-  }
+  get: () => NoInfer<State>
+  /**
+   * 获取状态数据后执行回调函数
+   */
+  withGet: <R = void>(cb: (state: NoInfer<State>) => R) => NoInfer<R>
 
   /**
    * 获取状态数据并删除原始缓存
    */
-  take: {
-    <T extends {}>(): Partial<T>
-    <T = unknown>(key: string): T | undefined
-  }
+  take: () => NoInfer<State>
+  /**
+   * 获取状态数据并删除原始缓存后执行回调函数
+   */
+  withTake: <R = void>(cb: (state: NoInfer<State>) => R) => NoInfer<R>
 
   /**
    * 销毁当前命名空间的状态数据
@@ -73,24 +72,15 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
   const routerHistory = router.options.history
   let historyState: {} = assign({}, routerHistory.state[namespace])
   let memoryState: {} = assign({}, historyState)
-  let deferredBuffer: [keyOrState: any, value?: any][] = []
-
-  const replaceHistoryState = (): void => {
-    routerHistory.replace(routerHistory.location, routerHistory.state)
-  }
+  let deferredBuffer: {}[] = []
 
   // 当 historyState 变更时需要同步到 routerHistory.state
   const syncHistoryState = (destroy?: boolean): void => {
     assign(routerHistory.state, { [namespace]: destroy ? undefined : historyState })
-    replaceHistoryState()
+    routerHistory.replace(routerHistory.location, routerHistory.state)
   }
 
-  const setState = (
-    keyOrState: any,
-    value?: any,
-    options: { onlyMemory?: boolean, sync?: boolean } = {},
-  ): void => {
-    const state = isString(keyOrState) ? { [keyOrState]: value } : keyOrState
+  const setState = (state: any, options: { onlyMemory?: boolean; sync?: boolean } = {}): void => {
     assign(memoryState, state)
 
     // onlyMemory 为 true 时跳过 historyState 更新
@@ -105,7 +95,7 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
 
     const buffer = deferredBuffer
     deferredBuffer = []
-    buffer.forEach(([keyOrState, value]) => setState(keyOrState, value))
+    buffer.forEach((state) => setState(state))
     syncHistoryState()
   }
 
@@ -114,12 +104,12 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
 
   // 当 routerHistory 是 MemoryHistory 时需要手动触发初次导航才会进入到 ready 状态，
   // 这里在 isReady 成功后同步一次 historyState
-  if (!isBrowser || routerHistory.state !== history.state) {
+  if (!isBrowser || routerHistory.state !== window.history.state) {
     router.isReady().then(() => syncHistoryState())
   }
 
   // 导航成功时同步延迟设置的状态数据
-  const removeRouterGuard = router.afterEach((_, __, failure) => {
+  const removeAfterGuard = router.afterEach((_, __, failure) => {
     !failure && applyDeferred()
 
     // 不论成功失败都重置缓冲区
@@ -135,16 +125,16 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
       return namespace
     },
 
-    set(keyOrState: any, value?: any) {
-      setState(keyOrState, value, { sync: true })
+    set(state) {
+      setState(state, { sync: true })
     },
 
-    setMemory(keyOrState: any, value?: any) {
-      setState(keyOrState, value, { onlyMemory: true })
+    setMemory(state) {
+      setState(state, { onlyMemory: true })
     },
 
-    setDeferred(keyOrState: any, value?: any) {
-      deferredBuffer.push([keyOrState, value])
+    setDeferred(state) {
+      deferredBuffer.push(state)
     },
 
     cancelDeferred() {
@@ -153,28 +143,24 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
 
     applyDeferred,
 
-    get(key?: string): any {
-      const state = { ...memoryState } as any
-      return key != null ? state[key] : state
+    get(): any {
+      return { ...memoryState }
+    },
+    withGet(cb) {
+      return cb(this.get())
     },
 
-    take(key?: string): any {
+    take(): any {
       try {
-        if (key != null) {
-          const value = memoryState[key as keyof {}]
-          delete historyState[key as keyof {}]
-          delete memoryState[key as keyof {}]
-          return value
-        }
-
-        const state = memoryState
+        return { ...memoryState }
+      } finally {
         historyState = {}
         memoryState = {}
-        return { ...state }
-      }
-      finally {
         syncHistoryState()
       }
+    },
+    withTake(cb) {
+      return cb(this.take())
     },
 
     destroy(): void {
@@ -182,48 +168,35 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
       memoryState = {}
       deferredBuffer = []
       syncHistoryState(true)
-      removeRouterGuard()
+      removeAfterGuard()
     },
   }
 }
 
-const DEFAULT_NAMESPACE = '__routerPlugins__historyStatePlugin__'
 function HistoryStatePlugin(): RouterPlugin & RouterPluginInstall {
   return withInstall(({ router, onUninstall }) => {
     const stateManagerMap = new Map<string, HistoryStateManager>()
 
-    let defaultStateManager: HistoryStateManager | null = createStateManager(
-      router,
-      DEFAULT_NAMESPACE,
-    )
-    stateManagerMap.set(DEFAULT_NAMESPACE, defaultStateManager)
-
-    const stateManagerFactory = (namespace: string): HistoryStateManager => {
-      if (namespace && !stateManagerMap.has(namespace)) {
+    const stateManagerFactory = (namespace: string): HistoryStateManager<any> => {
+      if (!namespace) {
+        throw new Error('namespace is required')
+      }
+      if (!stateManagerMap.has(namespace)) {
         stateManagerMap.set(namespace, createStateManager(router, namespace))
       }
-      return stateManagerMap.get(namespace || DEFAULT_NAMESPACE)!
+      return stateManagerMap.get(namespace)!
     }
 
-    router.historyState = assign(stateManagerFactory, defaultStateManager)
-
+    router.historyState = assign(stateManagerFactory, { raw: {} })
     // 重写只读属性
-    Object.defineProperties(router.historyState, {
-      raw: {
-        get() {
-          return defaultStateManager?.raw
-        },
-      },
-      namespace: {
-        get() {
-          return defaultStateManager?.namespace
-        },
+    Object.defineProperty(router.historyState, 'raw', {
+      get() {
+        return router.options.history.state
       },
     })
 
     onUninstall(() => {
-      defaultStateManager = null
-      stateManagerMap.forEach(stateManager => stateManager.destroy())
+      stateManagerMap.forEach((stateManager) => stateManager.destroy())
       stateManagerMap.clear()
     })
   })
@@ -233,6 +206,9 @@ export { HistoryStatePlugin as default, HistoryStatePlugin }
 
 declare module 'vue-router' {
   interface Router {
-    historyState: HistoryStateManager & ((namespace: string) => HistoryStateManager)
+    historyState: {
+      <State extends {}>(namespace: string): HistoryStateManager<State>
+      readonly raw: VueRouter.HistoryState
+    }
   }
 }

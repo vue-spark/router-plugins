@@ -31,14 +31,37 @@ router.navigationDirection.listen((direction, to, from) => {
     plugin: 'HistoryStatePlugin',
     code: `\
 // set-counter.vue
-const count = ref(0)
-router.historyState.setDeferred('count', count.value)
+export interface PageState {
+  incoming?: {
+    count?: number
+  }
+
+  outgoing?: {
+    count: number
+  }
+}
+
+const pageState = router.historyState<PageState>('/set-counter')
+// 取出上个页面传入的数据
+const count = ref(pageState.take()?.incoming?.count ?? 0)
+
+// 设置下个页面需要的数据
+pageState.setDeferred({ outgoing: { count: count.value } })
 router.back()
+
+// ----------------------------------------------------------------
 
 // home.vue
 const count = ref<number>()
+
+const setCounterPageState = router.historyState<PageState>('/set-counter')
 onActivated(() => {
-  count.value = router.historyState.get('count') ?? 0
+  // 取出 set-counter.vue 传入的数据
+  setCounterPageState.withTake(({ outgoing }) => {
+    if (outgoing) {
+      count.value = outgoing.count
+    }
+  })
 })
 `,
   },
@@ -55,11 +78,7 @@ createRouter({
   history: createWebHistory(),
   plugins: [
     ScrollerPlugin({
-      selectors: {
-        window: true,
-        // 滚动元素选择器
-        '.scrollable': true,
-      },
+      selectors: ['.scrollable'],
     }),
   ],
   routes: [],

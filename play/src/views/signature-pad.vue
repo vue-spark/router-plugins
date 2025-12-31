@@ -4,13 +4,24 @@ import { shallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import PageLayout from '@/components/PageLayout'
 
+export interface PageState {
+  /**
+   * Outgoing data to previous page
+   */
+  outgoing?: {
+    signature?: string
+  }
+}
+
 const router = useRouter()
+const pageState = router.historyState<PageState>('/signature-pad')
+
 const signature$ = shallowRef<Signature>()
 const signature = shallowRef<string>()
 
 function handleConfirm() {
   signature.value = signature$.value?.confirm()
-  router.historyState.setDeferred('signature', signature.value)
+  pageState.setDeferred({ outgoing: { signature: signature.value } })
   router.back()
 }
 

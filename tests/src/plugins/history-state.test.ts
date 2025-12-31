@@ -12,69 +12,94 @@ describe.concurrent('historyStatePlugin', () => {
   it('should expose historyState', async () => {
     const router = await initRouter()
     const routerHistory = router.options.history
-    const namespace = router.historyState.namespace
     expect(router.historyState.raw).toBe(routerHistory.state)
-    expect(routerHistory.state[namespace]).toStrictEqual(router.historyState.get())
   })
 
   it('should set and get state correctly', async () => {
     const router = await initRouter()
     const routerHistory = router.options.history
+    const historyState = router.historyState('test')
 
-    router.historyState.set('testKey', 'testValue')
-    expect(router.historyState.get('testKey')).toBe('testValue')
+    historyState.set({ testKey: 'testValue' })
+    expect(historyState.get()).toStrictEqual({ testKey: 'testValue' })
 
-    router.historyState.set({ testKey: 'testValue2' })
-    expect(router.historyState.get('testKey')).toBe('testValue2')
+    historyState.set({ testKey: 'testValue2' })
+    expect(historyState.get()).toStrictEqual({ testKey: 'testValue2' })
 
-    const namespace = router.historyState.namespace
-    expect(routerHistory.state[namespace]).toStrictEqual(router.historyState.get())
+    const namespace = historyState.namespace
+    expect(routerHistory.state[namespace]).toStrictEqual(historyState.get())
   })
 
   it('should update memory state without modifying history state when using setMemory', async () => {
     const router = await initRouter()
     const routerHistory = router.options.history
+    const historyState = router.historyState('test')
 
-    router.historyState.setMemory('testKey', 'testValue')
-    expect(router.historyState.get('testKey')).toBe('testValue')
+    historyState.setMemory({ testKey: 'testValue' })
+    expect(historyState.get()).toStrictEqual({ testKey: 'testValue' })
 
-    const namespace = router.historyState.namespace
+    const namespace = historyState.namespace
     expect('testKey' in (routerHistory.state[namespace] as any)).toBeFalsy()
 
-    router.historyState.set('testKey2', 'testValue2')
+    historyState.set({ testKey2: 'testValue2' })
     expect('testKey' in (routerHistory.state[namespace] as any)).toBeFalsy()
   })
 
   it('should handle deferred state updates', async () => {
     const router = await initRouter()
-    router.historyState.setDeferred('deferredKey', 'deferredValue')
-    expect(router.historyState.get('deferredKey')).toBeUndefined()
+    const historyState = router.historyState('test')
+
+    historyState.setDeferred({ deferredKey: 'deferredValue' })
+    expect(historyState.get()).toStrictEqual({})
 
     const failure = await router.push('/home')
-    expect(router.historyState.get('deferredKey')).toBe(failure ? undefined : 'deferredValue')
+    expect(historyState.get()).toStrictEqual(failure ? {} : { deferredKey: 'deferredValue' })
   })
 
   it('should cancel deferred state updates', async () => {
     const router = await initRouter()
-    router.historyState.setDeferred('cancelKey', 'cancelValue')
-    router.historyState.cancelDeferred()
+    const historyState = router.historyState('test')
+
+    historyState.setDeferred({ cancelKey: 'cancelValue' })
+    historyState.cancelDeferred()
 
     const failure = await router.push('/home')
     if (failure) throw failure
-    expect(router.historyState.get('cancelKey')).toBeUndefined()
+    expect(historyState.get()).toStrictEqual({})
   })
 
   it('should take state correctly', async () => {
     const router = await initRouter()
-    router.historyState.set('takeKey', 'takeValue')
-    const value = router.historyState.take('takeKey')
+    const historyState = router.historyState<{ takeKey: string }>('test')
+
+    historyState.set({ takeKey: 'takeValue' })
+    const value = historyState.take().takeKey
     expect(value).toBe('takeValue')
-    expect(router.historyState.get('takeKey')).toBeUndefined()
+    expect(historyState.get()).toStrictEqual({})
   })
 
   it('should destroy plugin correctly', async () => {
     const router = await initRouter()
-    router.historyState.destroy()
-    expect(router.options.history.state[router.historyState.namespace]).toBeUndefined()
+    router.historyState('test').destroy()
+    expect(router.options.history.state.test).toBeUndefined()
+  })
+
+  it('should get state correctly with withGet', async () => {
+    const router = await initRouter()
+    const historyState = router.historyState<{ testKey: string }>('test')
+    historyState.set({ testKey: 'testValue' })
+    historyState.withGet((state) => {
+      expect(state.testKey).toBe('testValue')
+    })
+  })
+
+  it('should take state correctly with withTake', async () => {
+    const router = await initRouter()
+    const historyState = router.historyState<{ takeKey: string }>('test')
+    historyState.set({ takeKey: 'takeValue' })
+    historyState.withTake((state) => {
+      expect(state.takeKey).toBe('takeValue')
+    })
+    expect(historyState.get()).toStrictEqual({})
   })
 })
