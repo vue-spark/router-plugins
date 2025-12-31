@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/vue-spark/router-plugins/compare/v1.1.0...v1.2.0) (2025-12-31)
+
+### Chores
+
+- **deps:** 更新依赖版本 ([100475e](https://github.com/vue-spark/router-plugins/commit/100475e87e8fb7c90d2b62d18c091a47c5c4cc53))
+- **deps:** 更新开发依赖版本 ([6eb88e8](https://github.com/vue-spark/router-plugins/commit/6eb88e8972cf114e1c07812b43795a57401d6f3d))
+- 增加 `HistoryStatePlugin` 函数调用注意事项 ([935f03b](https://github.com/vue-spark/router-plugins/commit/935f03b592c78933a7ee5b4f99a66ea0e81e7bc5))
+
+### Refactors
+
+- **navigation-direction:** 重构导航方向检测实现 ([f6161d7](https://github.com/vue-spark/router-plugins/commit/f6161d79e1129159dc1d76d246d6ad818e35f7c3))
+
 ## [1.1.0](https://github.com/vue-spark/router-plugins/compare/v1.0.0...v1.1.0) (2025-09-26)
 
 ### Features
