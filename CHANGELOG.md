@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.0](https://github.com/vue-spark/router-plugins/compare/v1.2.0...v2.0.0) (2025-12-31)
+
+### ⚠ BREAKING CHANGES
+
+- **history-state:** 重构历史状态管理插件
+- **scroller:** 重构滚动插件配置方式
+
+### Chores
+
+- 更新依赖版本 ([856a196](https://github.com/vue-spark/router-plugins/commit/856a196ecc5f766f4c294c763144b9d89fa99384))
+- 格式化代码 ([61699cd](https://github.com/vue-spark/router-plugins/commit/61699cd145e96bd2853f85f3430b1e688864aebd))
+
+### Refactors
+
+- **history-state:** 重构历史状态管理插件 ([b8b81b8](https://github.com/vue-spark/router-plugins/commit/b8b81b8f119f1c9c9660d9ed3b33472607b9ba1e))
+- **scroller:** 重构滚动插件配置方式 ([84e90a2](https://github.com/vue-spark/router-plugins/commit/84e90a2758bc49b42ccffb3c1d347699bbd502a5))
+
+### Docs
+
+- 更新 `Scroller` 插件文档 ([c378492](https://github.com/vue-spark/router-plugins/commit/c3784927b5f7d4806a30717c1a38185050cb59bb))
+
 ## [1.2.0](https://github.com/vue-spark/router-plugins/compare/v1.1.0...v1.2.0) (2025-12-31)
 
 ### Chores
