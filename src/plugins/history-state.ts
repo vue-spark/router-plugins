@@ -80,7 +80,7 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
     routerHistory.replace(routerHistory.location, routerHistory.state)
   }
 
-  const setState = (state: any, options: { onlyMemory?: boolean; sync?: boolean } = {}): void => {
+  const setState = (state: any, options: { onlyMemory?: boolean, sync?: boolean } = {}): void => {
     assign(memoryState, state)
 
     // onlyMemory 为 true 时跳过 historyState 更新
@@ -95,7 +95,7 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
 
     const buffer = deferredBuffer
     deferredBuffer = []
-    buffer.forEach((state) => setState(state))
+    buffer.forEach(state => setState(state))
     syncHistoryState()
   }
 
@@ -153,7 +153,8 @@ function createStateManager(router: VueRouter.Router, namespace: string): Histor
     take(): any {
       try {
         return { ...memoryState }
-      } finally {
+      }
+      finally {
         historyState = {}
         memoryState = {}
         syncHistoryState()
@@ -196,7 +197,7 @@ function HistoryStatePlugin(): RouterPlugin & RouterPluginInstall {
     })
 
     onUninstall(() => {
-      stateManagerMap.forEach((stateManager) => stateManager.destroy())
+      stateManagerMap.forEach(stateManager => stateManager.destroy())
       stateManagerMap.clear()
     })
   })
