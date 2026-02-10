@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.2](https://github.com/vue-spark/router-plugins/compare/v2.0.1...v2.0.2) (2026-02-10)
+
+### Chores
+
+- 升级 vue-router 到 v5 ([06f9212](https://github.com/vue-spark/router-plugins/commit/06f92122ee28c18dc5fac2fff3a7d817192cdc34))
+
 ## [2.0.1](https://github.com/vue-spark/router-plugins/compare/v2.0.0...v2.0.1) (2025-12-31)
 
 ### Chores
